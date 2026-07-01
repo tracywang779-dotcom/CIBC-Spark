@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spark — Case</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <style>
+    .page { padding: var(--space-10) 0 var(--space-12) 0; }
+    .page-title { font-size: 42px; font-weight: 600; line-height: 1.25; margin: 0 0 var(--space-4) 0; }
+    .back-link { display: inline-block; font-size: 16px; color: var(--cibc-red); font-weight: 500; text-decoration: none; margin-bottom: var(--space-4); }
+    .back-link:hover { text-decoration: underline; }
+
+    .tags { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-bottom: var(--space-5); }
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      background: var(--gray-100);
+      color: var(--gray-700);
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .meta { font-size: 16px; color: var(--gray-500); margin: 0 0 var(--space-6) 0; }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-card);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-card);
+      margin-bottom: var(--space-5);
+    }
+    .card-title { font-size: 30px; font-weight: 600; margin: 0 0 var(--space-4) 0; }
+    .field-label {
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--gray-500);
+      margin: 0 0 var(--space-1) 0;
+    }
+    .field-value {
+      font-size: 18px;
+      line-height: 1.55;
+      color: var(--gray-900);
+      white-space: pre-wrap;
+      margin: 0 0 var(--space-5) 0;
+    }
+    .field-value:last-child { margin-bottom: 0; }
+    .checklist { margin: 0; padding-left: 1.2rem; font-size: 18px; color: var(--gray-900); }
+
+    .actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-bottom: var(--space-5); }
+    .btn-upvote, .btn-primary, .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 10px 20px;
+      border-radius: var(--radius-button);
+      font-weight: 500;
+      font-size: 18px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition-base);
+      border: 1px solid var(--gray-200);
+      background: var(--white);
+      color: var(--gray-900);
+      text-decoration: none;
+    }
+    .btn-upvote:hover:not(:disabled) { background: var(--gray-50); border-color: var(--gray-400); }
+    .btn-upvote:disabled { opacity: 0.6; cursor: default; }
+    .btn-primary { background: var(--cibc-red); color: var(--white); border-color: var(--cibc-red); }
+    .btn-primary:hover { background: var(--cibc-red-dark); }
+
+    .comment-list { list-style: none; padding: 0; margin: 0 0 var(--space-5) 0; display: flex; flex-direction: column; gap: var(--space-4); }
+    .comment {
+      border-top: 1px solid var(--gray-200);
+      padding-top: var(--space-4);
+    }
+    .comment-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+    .comment-author { font-size: 16px; font-weight: 600; color: var(--gray-900); }
+    .comment-role { font-size: 16px; color: var(--gray-500); }
+    .comment-time { font-size: 15px; color: var(--gray-400); margin-left: auto; }
+    .comment-text { font-size: 18px; line-height: 1.55; color: var(--gray-900); margin: 0; }
+
+    .comment-form textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-button);
+      padding: 10px 14px;
+      font-size: 18px;
+      font-family: inherit;
+      min-height: 88px;
+      resize: vertical;
+      margin-bottom: var(--space-3);
+    }
+    .comment-form textarea:focus {
+      outline: none;
+      border-color: var(--cibc-red);
+      box-shadow: 0 0 0 2px var(--cibc-red-light);
+    }
+    .comment-form label {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 16px;
+      color: var(--gray-700);
+      margin-bottom: var(--space-3);
+      cursor: pointer;
+    }
+    .empty-comments { font-size: 18px; color: var(--gray-500); margin: 0 0 var(--space-5) 0; }
+
+    .concern-notice {
+      background: var(--warning-bg);
+      border: 1px solid #FCD34D;
+      border-radius: var(--radius-button);
+      padding: 12px 16px;
+      font-size: 16px;
+      color: #92400E;
+      margin-bottom: var(--space-5);
+    }
+
+    .empty-state { text-align: center; padding: var(--space-10); color: var(--gray-500); }
+  </style>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <main class="spark-container page" id="main"></main>
+
+  <div id="footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
+  <script>
+    const user = requireAuth();
+    if (user) {
+      mountChrome('explore');
+
+      const params = new URLSearchParams(window.location.search);
+      const caseId = params.get('id');
+      const main = document.getElementById('main');
+
+      const renderComment = (comment) => {
+        const displayName = comment.anonymous
+          ? (comment.role === 'manager' ? 'Anonymous Manager' : 'Anonymous Employee')
+          : comment.author;
+        const roleLabel = comment.role === 'manager' ? 'Comment from a Manager' : 'Comment from an Employee';
+        const badge = !comment.anonymous && comment.role === 'manager' ? renderManagerBadge() : '';
+
+        return `
+          <li class="comment">
+            <div class="comment-head">
+              <span class="comment-author">${displayName}</span>
+              ${badge}
+              <span class="comment-role">${roleLabel}</span>
+              <span class="comment-time">${formatDisplayDate(comment.createdAt)}</span>
+            </div>
+            <p class="comment-text">${comment.text}</p>
+          </li>
+        `;
+      };
+
+      const renderPage = () => {
+        const data = getMergedData();
+        const peerCase = data.peerCases.find((c) => c.id === caseId);
+
+        if (!peerCase) {
+          main.innerHTML = `
+            <div class="card">
+              ${renderEmptyState(
+                'We could not find that case. It may have been removed or the link is incorrect.',
+                {
+                  icon: '&#128196;',
+                  actionHtml: '<a class="spark-btn-primary" href="peer-cases.html">Return to Peer Cases</a>'
+                }
+              )}
+            </div>
+          `;
+          return;
+        }
+
+        const enriched = enrichPeerCase(peerCase, data.workflows, data.comments);
+        const comments = data.comments[caseId] || [];
+        const promptParam = encodeURIComponent(peerCase.prompt || '');
+        const upvoted = hasUpvotedCase(caseId);
+        const hasConcern = comments.some((c) => c.isConcern);
+        const originalOutput = peerCase.originalOutput || peerCase.summary;
+        const finalOutput = peerCase.finalOutput || peerCase.originalOutput || peerCase.summary;
+        const checklist = peerCase.checklistCompleted || [];
+
+        main.innerHTML = `
+          <a class="back-link" href="peer-cases.html">&larr; Back to Peer Cases</a>
+          ${hasConcern ? '<div class="concern-notice" role="status">This case has unresolved concerns from the community.</div>' : ''}
+
+          <h1 class="page-title">${peerCase.title}</h1>
+          <div class="tags">
+            <span class="tag">${enriched.roleLabel}</span>
+            <span class="tag">${enriched.workflowName}</span>
+            ${renderConfidencePill(enriched.confidence, true)}
+          </div>
+          <p class="meta">${peerCase.author} · ${enriched.authorRole === 'manager' ? 'Manager' : 'Employee'} · ${formatDisplayDate(peerCase.createdAt)} · ${peerCase.timeSavedMinutes} min saved</p>
+
+          <div class="actions">
+            <button type="button" class="btn-upvote" id="btn-upvote" ${upvoted ? 'disabled' : ''} aria-label="Upvote this case">
+              &#128077; <span id="upvote-count">${peerCase.upvotes || 0}</span>
+            </button>
+            <a class="btn-primary" href="workflow-detail.html?id=${peerCase.workflowId}&prompt=${promptParam}">Try this in a workflow</a>
+          </div>
+
+          <section class="card">
+            <h2 class="card-title">What this helped with</h2>
+            <p class="field-value" style="margin:0;">${peerCase.summary || peerCase.title}</p>
+          </section>
+
+          <section class="card">
+            <h2 class="card-title">The run</h2>
+            <p class="field-label">Prompt</p>
+            <p class="field-value">${peerCase.prompt}</p>
+            <p class="field-label">Original AI output</p>
+            <div class="field-value">
+              ${renderConfidencePill(enriched.confidence)}
+              ${peerCase.confidenceNote ? `<p class="confidence-note" style="margin-top:8px;">${peerCase.confidenceNote}</p>` : ''}
+              <p style="margin-top:12px;">${originalOutput}</p>
+            </div>
+            <p class="field-label">Verification checklist</p>
+            ${checklist.length
+              ? `<ul class="checklist">${checklist.map((item) => `<li>${item}</li>`).join('')}</ul>`
+              : '<p class="field-value">Checklist not recorded for this case.</p>'}
+            <p class="field-label" style="margin-top:20px;">Final version (after edits)</p>
+            <p class="field-value" style="margin:0;">${finalOutput}</p>
+          </section>
+
+          <section class="card" aria-labelledby="comments-heading">
+            <h2 class="card-title" id="comments-heading">Comments</h2>
+            <ul class="comment-list" id="comment-list">
+              ${comments.length
+                ? comments.map(renderComment).join('')
+                : `<li>${renderEmptyState('No comments yet. Be the first to weigh in.', { icon: '&#128172;' })}</li>`}
+            </ul>
+            <form class="comment-form" id="comment-form">
+              <textarea id="comment-text" placeholder="Share feedback or a tip for others trying this workflow…" aria-label="Comment text"></textarea>
+              <label><input type="checkbox" id="comment-anonymous" /> Post anonymously</label>
+              <button type="submit" class="btn-primary">Post comment</button>
+            </form>
+          </section>
+        `;
+
+        document.getElementById('btn-upvote').addEventListener('click', () => {
+          if (upvoteCase(caseId)) {
+            const countEl = document.getElementById('upvote-count');
+            if (countEl) {
+              countEl.textContent = String(parseInt(countEl.textContent, 10) + 1);
+              countEl.classList.add('upvote-count-bump');
+              setTimeout(() => countEl.classList.remove('upvote-count-bump'), 260);
+            }
+            document.getElementById('btn-upvote').disabled = true;
+          }
+        });
+
+        document.getElementById('comment-form').addEventListener('submit', (event) => {
+          event.preventDefault();
+          const text = document.getElementById('comment-text').value.trim();
+          if (!text) return;
+
+          appendComment(caseId, {
+            author: user.name,
+            role: user.role,
+            text,
+            anonymous: document.getElementById('comment-anonymous').checked,
+            createdAt: new Date().toISOString().slice(0, 10)
+          });
+          renderPage();
+        });
+      };
+
+      renderPage();
+    }
+  </script>
+</body>
+</html>

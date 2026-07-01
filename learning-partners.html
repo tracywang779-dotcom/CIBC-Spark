@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spark — Learning Partners</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <style>
+    .panel-icon { font-size: 30px; }
+    .topic-input-row {
+      display: flex;
+      gap: var(--space-2);
+      align-items: stretch;
+    }
+    .topic-input {
+      flex: 1;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-button);
+      padding: 10px 14px;
+      font-size: 16px;
+      font-family: inherit;
+    }
+    .topic-input:focus {
+      outline: none;
+      border-color: var(--cibc-red);
+      box-shadow: 0 0 0 2px var(--cibc-red-light);
+    }
+    .topic-use {
+      padding: 10px 16px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-button);
+      background: var(--white);
+      font-size: 16px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .topic-use:hover { background: var(--gray-50); border-color: var(--gray-400); }
+    .pod-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-3); }
+    .btn-secondary, .btn-text {
+      padding: 8px 14px;
+      border-radius: var(--radius-button);
+      font-size: 16px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition-base);
+    }
+    .btn-secondary {
+      background: var(--cibc-red);
+      color: var(--white);
+      border: 1px solid var(--cibc-red);
+    }
+    .btn-secondary:hover { background: var(--cibc-red-dark); }
+    .btn-text {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      color: var(--gray-900);
+    }
+    .btn-text:hover { background: var(--gray-50); border-color: var(--gray-400); }
+  </style>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <main class="spark-container explore-page">
+    <a class="explore-back" href="explore.html">&larr; Back to Explore</a>
+
+    <header class="explore-head">
+      <h1 class="explore-title">Learning Partners</h1>
+      <p class="explore-lead">Interest-based PODs where curious teammates learn together. Join full membership or observe quietly.</p>
+    </header>
+
+    <div class="explore-split explore-split--equal">
+      <section class="explore-panel" aria-label="Topic selection">
+        <div class="chip-cloud" id="topic-chips"></div>
+        <div class="topic-input-row">
+          <input class="topic-input" id="custom-topic" type="text" aria-label="Custom topic" />
+        </div>
+      </section>
+
+      <section class="explore-panel" aria-label="POD directory">
+        <div class="mini-grid" id="pod-list"></div>
+      </section>
+    </div>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
+  <script>
+    const user = requireAuth();
+    if (user) {
+      mountChrome('explore');
+      const data = getMergedData();
+
+      document.getElementById('topic-chips').innerHTML = data.boundaries.map((row) => `
+        <button type="button" class="topic-chip" data-task="${row.task}">${row.task}</button>
+      `).join('');
+
+      document.getElementById('topic-chips').addEventListener('click', (event) => {
+        const chip = event.target.closest('.topic-chip');
+        if (!chip) return;
+        document.querySelectorAll('.topic-chip').forEach((el) => el.classList.toggle('active', el === chip));
+        document.getElementById('custom-topic').value = chip.dataset.task;
+      });
+
+      const showPodToast = () => showToast('Coming soon in v2 — POD scheduling is look-only in this prototype.');
+
+      document.getElementById('custom-topic').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') showPodToast();
+      });
+
+      document.getElementById('pod-list').innerHTML = data.pods.map((pod) => `
+        <article class="mini-card">
+          <h3>${pod.name}</h3>
+          <p>${pod.summary}</p>
+          <div class="avatar-stack" aria-hidden="true">
+            <span>SC</span><span>DK</span>
+          </div>
+          <p class="explore-panel__sub" style="margin:8px 0 0 0;">${pod.members} members · ${pod.cadence}</p>
+          <div class="pod-actions">
+            <button type="button" class="btn-secondary pod-action">Join POD</button>
+            <button type="button" class="btn-text pod-action">Join as observer</button>
+          </div>
+        </article>
+      `).join('');
+
+      document.getElementById('pod-list').addEventListener('click', (event) => {
+        if (event.target.closest('.pod-action')) showPodToast();
+      });
+    }
+  </script>
+</body>
+</html>

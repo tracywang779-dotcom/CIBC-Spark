@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spark — Ideas Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <style>
+    .idea-meta { font-size: 16px; color: var(--gray-500); }
+    .idea-author { display: inline-flex; align-items: center; gap: var(--space-2); }
+    .idea-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: var(--gray-200);
+      color: var(--gray-700);
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <main class="spark-container explore-page">
+    <a class="explore-back" href="explore.html">&larr; Back to Explore</a>
+
+    <header class="explore-head">
+      <h1 class="explore-title">Ideas Lab</h1>
+      <p class="explore-lead">Suggest what AI tools should exist next. Upvote ideas your team should build. Posting is look-only in this prototype.</p>
+    </header>
+
+    <section class="banner-feature" id="top-idea" aria-label="Top idea this quarter"></section>
+
+    <section class="feed-list" id="idea-list" aria-label="Idea board"></section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
+  <script>
+    const user = requireAuth();
+    if (user) {
+      mountChrome('explore');
+      const data = getMergedData();
+      const sorted = [...data.ideas].sort((a, b) => b.upvotes - a.upvotes);
+      const top = sorted[0];
+
+      const initials = (name) => name.split(' ').map((part) => part[0]).join('').slice(0, 2);
+
+      document.getElementById('top-idea').innerHTML = `
+        <p class="banner-feature__label">Top idea this quarter</p>
+        <h2>${top.title}</h2>
+        <p>${top.summary}</p>
+        <p class="idea-meta" style="margin-top:12px;">${top.upvotes} upvotes · Being scoped for build</p>
+      `;
+
+      document.getElementById('idea-list').innerHTML = sorted.map((idea, index) => `
+        <article class="feed-card feed-card--static${index === 0 ? ' feed-card--featured' : ''}">
+          <div class="vote-rail" aria-label="${idea.upvotes} upvotes">
+            <span class="vote-rail__icon">&#9650;</span>
+            <span>${idea.upvotes}</span>
+            <span class="vote-rail__icon">&#9660;</span>
+          </div>
+          <div class="feed-body">
+            <div class="feed-head">
+              <h3 class="feed-title">${idea.title}</h3>
+            </div>
+            <p class="inset-block" style="margin-bottom:0;">${idea.summary}</p>
+            <div class="feed-foot" style="margin-top:16px;">
+              <div class="feed-meta idea-author">
+                <span class="idea-avatar">${initials(idea.author)}</span>
+                <span>${idea.author}</span>
+                <span>&#128077; ${idea.upvotes}</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

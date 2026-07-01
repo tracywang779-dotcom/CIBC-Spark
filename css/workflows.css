@@ -1,0 +1,347 @@
+/* Workflows hub — reference layout */
+
+.wf-hub {
+  background: var(--gray-100);
+  min-height: 100vh;
+}
+
+.wf-hub-page {
+  padding: var(--space-6) 0 var(--space-12);
+}
+
+.wf-hub-page .spark-container {
+  max-width: 1280px;
+}
+
+/* Breadcrumbs */
+.wf-hub-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 16px;
+  color: var(--gray-500);
+  margin-bottom: var(--space-8);
+}
+
+.wf-hub-breadcrumbs a {
+  display: inline-flex;
+  align-items: center;
+  color: var(--gray-500);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.wf-hub-breadcrumbs a:hover {
+  color: var(--cibc-red);
+}
+
+.wf-hub-breadcrumbs__sep {
+  color: var(--gray-400);
+  user-select: none;
+}
+
+.wf-hub-breadcrumbs__current {
+  color: var(--gray-900);
+  font-weight: 500;
+}
+
+/* Sections */
+.wf-hub-section {
+  margin-bottom: var(--space-10);
+}
+
+.wf-hub-section__title {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--gray-900);
+  margin: 0 0 var(--space-5);
+}
+
+/* Role cards */
+.wf-role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-5);
+}
+
+.wf-role-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-6);
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-card);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wf-role-card:hover {
+  border-color: var(--gray-400);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.wf-role-card.active {
+  border-color: var(--cibc-red);
+  box-shadow: 0 0 0 1px var(--cibc-red);
+}
+
+.wf-role-card__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--gray-100);
+  color: var(--gray-500);
+}
+
+.wf-role-card.active .wf-role-card__icon {
+  background: var(--cibc-red-light);
+  color: var(--cibc-red);
+}
+
+.wf-role-card h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 var(--space-1);
+  color: var(--gray-900);
+}
+
+.wf-role-card p {
+  font-size: 16px;
+  color: var(--gray-500);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Workflow cards */
+.wf-workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-5);
+}
+
+.wf-workflow-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-card);
+  padding: var(--space-5);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  min-height: 220px;
+}
+
+.wf-workflow-card:hover {
+  border-color: var(--gray-400);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.wf-workflow-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.wf-workflow-card__tag {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--gray-100);
+  color: var(--gray-600, var(--gray-700));
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.wf-priority {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 15px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.wf-priority__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.wf-priority--high { color: var(--success); }
+.wf-priority--high .wf-priority__dot { background: var(--success); }
+
+.wf-priority--medium { color: #B45309; }
+.wf-priority--medium .wf-priority__dot { background: var(--warning); }
+
+.wf-priority--low { color: var(--danger); }
+.wf-priority--low .wf-priority__dot { background: var(--danger); }
+
+.wf-workflow-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 var(--space-2);
+  color: var(--gray-900);
+  letter-spacing: -0.01em;
+}
+
+.wf-workflow-card__summary {
+  font-size: 16px;
+  color: var(--gray-500);
+  line-height: 1.5;
+  margin: 0 0 auto;
+  flex: 1;
+}
+
+.wf-workflow-card__metrics {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  font-size: 15px;
+  color: var(--gray-500);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--gray-100);
+}
+
+.wf-productivity {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: var(--success);
+  font-weight: 500;
+}
+
+.wf-workflow-card__cta {
+  display: block;
+  text-align: right;
+  margin-top: var(--space-3);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--cibc-red);
+}
+
+.wf-workflow-card:hover .wf-workflow-card__cta {
+  text-decoration: underline;
+}
+
+/* Prompt list */
+.wf-prompt-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.wf-prompt-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-card);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wf-prompt-row:hover {
+  border-color: var(--gray-300, var(--gray-400));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.wf-prompt-row__quote {
+  font-size: 36px;
+  line-height: 1;
+  color: var(--gray-300, var(--gray-400));
+  font-family: Georgia, serif;
+  user-select: none;
+}
+
+.wf-prompt-row__text {
+  font-size: 16px;
+  color: var(--gray-900);
+  line-height: 1.5;
+  margin: 0;
+  min-width: 0;
+}
+
+.wf-prompt-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 15px;
+  color: var(--gray-500);
+  white-space: nowrap;
+}
+
+.wf-prompt-row__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wf-prompt-row__use {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--cibc-red);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.wf-prompt-row__use:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .wf-workflow-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .wf-prompt-row {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .wf-prompt-row__meta {
+    grid-column: 2;
+  }
+
+  .wf-prompt-row__use {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 720px) {
+  .wf-role-grid,
+  .wf-workflow-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wf-prompt-row {
+    grid-template-columns: 1fr;
+  }
+
+  .wf-prompt-row__quote {
+    display: none;
+  }
+}

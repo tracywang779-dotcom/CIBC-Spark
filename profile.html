@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spark — My Profile</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+</head>
+<body>
+  <div id="nav"></div>
+
+  <main class="spark-container profile-page">
+    <header class="profile-header">
+      <h1 class="profile-title">My Profile</h1>
+      <p class="profile-subtitle" id="profile-greeting"></p>
+    </header>
+
+    <section class="profile-section" aria-labelledby="progression-heading">
+      <h2 class="profile-section-title" id="progression-heading">Progression</h2>
+      <div class="profile-panel progression-panel" id="progression-panel"></div>
+    </section>
+
+    <section class="profile-section" aria-labelledby="wins-heading">
+      <h2 class="profile-section-title" id="wins-heading">Personal Wins</h2>
+      <div class="profile-wins" id="wins-grid"></div>
+    </section>
+
+    <section class="profile-section" aria-labelledby="next-heading">
+      <h2 class="profile-section-title" id="next-heading">What&rsquo;s Next</h2>
+      <div class="profile-panel" id="whats-next"></div>
+    </section>
+
+    <section class="profile-section" aria-labelledby="calendar-heading">
+      <h2 class="profile-section-title" id="calendar-heading">Calendar</h2>
+      <div class="profile-panel" id="calendar-panel"></div>
+    </section>
+
+    <div class="profile-logout">
+      <button type="button" class="profile-logout-btn" id="logout">Log out</button>
+    </div>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
+  <script>
+    const user = requireAuth();
+    if (user) {
+      mountChrome(null);
+
+      const data = getMergedData();
+      const stats = getProfileStats(user);
+      const progression = getProgressionView(user, stats);
+      let dismissedIds = getProfileDismissedIds();
+      let selectedEventId = null;
+
+      document.getElementById('profile-greeting').textContent =
+        `${user.name} · ${user.title}, ${user.department}. This page is private to you — your manager and teammates do not see it.`;
+
+      let championPopoverOpen = false;
+
+      const closeChampionPopover = () => {
+        const popover = document.getElementById('champion-reward-popover');
+        const trigger = document.getElementById('champion-reward-trigger');
+        if (!popover || !trigger) return;
+        popover.classList.add('panel-hidden');
+        trigger.setAttribute('aria-expanded', 'false');
+        championPopoverOpen = false;
+      };
+
+      const openChampionPopover = () => {
+        const popover = document.getElementById('champion-reward-popover');
+        const trigger = document.getElementById('champion-reward-trigger');
+        if (!popover || !trigger) return;
+        popover.classList.remove('panel-hidden');
+        trigger.setAttribute('aria-expanded', 'true');
+        championPopoverOpen = true;
+      };
+
+      const renderProgression = () => {
+        const labels = progression.stages.map((stage, index) => {
+          const isActive = index === progression.stageIndex;
+          if (stage.id === 'ai-champion') {
+            return renderChampionStageLabel(stage, isActive, user);
+          }
+          const active = isActive ? ' active' : '';
+          return `<span class="${active.trim()}">${stage.label}</span>`;
+        }).join('');
+
+        document.getElementById('progression-panel').innerHTML = `
+          <div class="progression-labels">${labels}</div>
+          <div class="progression-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(progression.progressPercent)}" aria-label="Progression toward ${progression.stage.label}">
+            <div class="progression-fill" style="width:${progression.progressPercent}%"></div>
+            <span class="progression-marker" style="left:${progression.progressPercent}%"></span>
+          </div>
+          <p class="progression-note">${progression.note}</p>
+          ${renderChampionRewardPopover(user, data.championReward)}
+        `;
+      };
+
+      const winHint = (value, emptyCopy) => (value ? '' : emptyCopy);
+
+      const renderWins = () => {
+        document.getElementById('wins-grid').innerHTML = `
+          <a class="win-card" href="workflows.html">
+            <p class="win-value">${formatTimeSaved(stats.timeSavedMinutes)}</p>
+            <p class="win-label">Time saved</p>
+            <p class="win-hint">${winHint(stats.timeSavedMinutes, 'Your first workflow will count here.') || 'Cumulative from verified workflow runs.'}</p>
+          </a>
+          <a class="win-card" href="workflows.html">
+            <p class="win-value">${stats.tasksCompleted}</p>
+            <p class="win-label">Tasks completed</p>
+            <p class="win-hint">${winHint(stats.tasksCompleted, 'Your first workflow will count here.') || 'Workflow runs you have completed.'}</p>
+          </a>
+          <a class="win-card" href="peer-cases.html?mine=1">
+            <p class="win-value">${stats.promptsContributed}</p>
+            <p class="win-label">Prompts contributed</p>
+            <p class="win-hint">${winHint(stats.promptsContributed, 'Your first workflow will count here.') || 'Peer Cases you have shared.'}</p>
+          </a>
+          <a class="win-card" href="ideas-lab.html">
+            <p class="win-value">${stats.ideasPosted}</p>
+            <p class="win-label">Ideas posted</p>
+            <p class="win-hint">${winHint(stats.ideasPosted, 'Post your first idea in Ideas Lab.') || 'Ideas you have posted in Ideas Lab.'}</p>
+          </a>
+        `;
+      };
+
+      const eventTypeLabel = (type) => {
+        if (type === 'pod') return 'POD discussion';
+        if (type === 'workshop') return 'Workshop';
+        if (type === 'ideas') return 'Quarterly idea session';
+        return 'Event';
+      };
+
+      const formatEventDate = (iso) => {
+        const date = new Date(`${iso}T12:00:00`);
+        const month = date.toLocaleDateString('en-CA', { month: 'short' });
+        const day = date.getDate();
+        return `${month}<br>${day}`;
+      };
+
+      const renderWhatsNext = () => {
+        const suggestions = getWhatsNextSuggestions(user, data, dismissedIds);
+        const container = document.getElementById('whats-next');
+
+        if (!suggestions.length) {
+          container.innerHTML = renderEmptyState('Nothing to suggest right now — explore on your own.', { icon: '&#128161;' });
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="suggestion-list">
+            ${suggestions.map((item) => `
+              <article class="suggestion-item">
+                <div class="suggestion-body">
+                  <span class="suggestion-label">${item.label}</span>
+                  <h3 class="suggestion-title">${item.title}</h3>
+                  <p class="suggestion-desc">${item.description}</p>
+                </div>
+                <div class="suggestion-actions">
+                  <a class="suggestion-link" href="${item.href}">Go &rarr;</a>
+                  <button type="button" class="suggestion-dismiss" data-dismiss="${item.id}" aria-label="Dismiss suggestion">Dismiss</button>
+                </div>
+              </article>
+            `).join('')}
+          </div>
+        `;
+      };
+
+      const renderCalendar = () => {
+        const events = [...data.events].sort((a, b) => new Date(a.date) - new Date(b.date));
+        const panel = document.getElementById('calendar-panel');
+
+        if (!events.length) {
+          panel.innerHTML = renderEmptyState(
+            'No upcoming events. Browse Learning Partners to find a POD.',
+            {
+              icon: '&#128197;',
+              actionHtml: '<a class="spark-btn-secondary" href="learning-partners.html">Browse Learning Partners</a>'
+            }
+          );
+          return;
+        }
+
+        const selected = events.find((item) => item.id === selectedEventId);
+
+        panel.innerHTML = `
+          <div class="calendar-list" id="calendar-list">
+            ${events.map((event) => `
+              <button type="button" class="calendar-item${selectedEventId === event.id ? ' active' : ''}" data-event-id="${event.id}">
+                <div class="calendar-date">${formatEventDate(event.date)}</div>
+                <div class="calendar-main">
+                  <p class="calendar-title">${event.title}</p>
+                  <p class="calendar-meta">${eventTypeLabel(event.type)} · ${event.format === 'in-person' ? 'In person' : 'Virtual'}</p>
+                </div>
+              </button>
+            `).join('')}
+          </div>
+          <div id="calendar-detail"></div>
+        `;
+
+        const detailEl = document.getElementById('calendar-detail');
+        if (selected) {
+          detailEl.innerHTML = `
+            <div class="calendar-detail">
+              <p>${selected.description || 'Details for this session will be shared closer to the date.'}</p>
+              <button type="button" class="calendar-add" id="calendar-add">Add to my calendar</button>
+            </div>
+          `;
+          document.getElementById('calendar-add').addEventListener('click', () => {
+            showToast('In this prototype, calendar export is display-only.');
+          });
+        } else {
+          detailEl.innerHTML = '';
+        }
+      };
+
+      renderProgression();
+      renderWins();
+      renderWhatsNext();
+      renderCalendar();
+
+      document.getElementById('progression-panel').addEventListener('click', (event) => {
+        const celebrateBtn = event.target.closest('#champion-reward-celebrate');
+        if (celebrateBtn) {
+          event.stopPropagation();
+          launchChampionFireworks(celebrateBtn);
+          return;
+        }
+        if (event.target.closest('#champion-reward-trigger')) {
+          event.stopPropagation();
+          if (championPopoverOpen) closeChampionPopover();
+          else openChampionPopover();
+        }
+      });
+
+      document.addEventListener('click', (event) => {
+        if (!championPopoverOpen) return;
+        if (event.target.closest('#champion-reward-popover') || event.target.closest('#champion-reward-trigger')) return;
+        closeChampionPopover();
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && championPopoverOpen) closeChampionPopover();
+      });
+
+      document.getElementById('whats-next').addEventListener('click', (event) => {
+        const dismissBtn = event.target.closest('[data-dismiss]');
+        if (!dismissBtn) return;
+        dismissedIds = dismissProfileSuggestion(dismissBtn.dataset.dismiss);
+        renderWhatsNext();
+      });
+
+      document.getElementById('calendar-panel').addEventListener('click', (event) => {
+        const item = event.target.closest('.calendar-item');
+        if (!item) return;
+        selectedEventId = selectedEventId === item.dataset.eventId ? null : item.dataset.eventId;
+        renderCalendar();
+      });
+
+      document.getElementById('logout').addEventListener('click', () => {
+        logout();
+        window.location.href = 'login.html';
+      });
+    }
+  </script>
+</body>
+</html>

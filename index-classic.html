@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spark — Your AI Journey</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <style>
+    /* Landing has NO top nav (DESIGN_LOGIC 3.5.1 / 4.1.3). Per project owner
+       decision (2026-06-29), a profile avatar is kept in the top-right only. */
+    .landing-brandbar {
+      height: 64px;
+      display: flex;
+      align-items: center;
+    }
+    .landing-brandbar .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+    .brand-wordmark { /* extends .spark-logo */ }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: var(--gray-200);
+      color: var(--gray-700);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: var(--transition-base);
+    }
+    .avatar:hover { background: var(--gray-100); outline: 2px solid var(--cibc-red-light); outline-offset: 2px; }
+
+    .landing-main { padding-bottom: var(--space-12); }
+
+    /* Section 1 — Hero (DESIGN_SYSTEM 5.4) */
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--cibc-red) 0%, var(--cibc-red-dark) 100%);
+      color: var(--white);
+      border-radius: var(--radius-hero);
+      padding: 40px 48px;
+    }
+    .hero-sparkle {
+      position: absolute;
+      top: 16px;
+      right: 28px;
+      font-size: 120px;
+      line-height: 1;
+      color: var(--white);
+      opacity: 0.30;
+      user-select: none;
+      pointer-events: none;
+    }
+    .hero-welcome { font-size: 24px; line-height: 1.5; color: rgba(255,255,255,0.85); margin: 0; }
+    .hero-title {
+      font-size: 48px;
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      margin: var(--space-2) 0 var(--space-3) 0;
+    }
+    .hero-subline { font-size: 24px; line-height: 1.5; color: rgba(255,255,255,0.85); margin: 0; max-width: 65ch; }
+
+    /* Section 2 — Pledge card (smaller than a dashboard panel; 3px red accent) */
+    .section { margin-top: var(--space-10); }
+    .pledge-card {
+      display: block;
+      width: 60%;
+      min-width: 420px;
+      max-width: 640px;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-top: 3px solid var(--cibc-red);
+      border-radius: var(--radius-card);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-card);
+      transition: var(--transition-base);
+      text-decoration: none;
+      color: inherit;
+    }
+    .pledge-card:hover {
+      border-color: var(--gray-400);
+      border-top-color: var(--cibc-red);
+      box-shadow: var(--shadow-card-hover);
+      transform: translateY(-1px);
+    }
+    .pledge-label {
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--gray-500);
+      margin: 0;
+    }
+    .pledge-preview {
+      font-size: 24px;
+      line-height: 1.5;
+      color: var(--gray-900);
+      margin: var(--space-3) 0 var(--space-4) 0;
+    }
+    .pledge-cta { color: var(--cibc-red); font-weight: 500; font-size: 18px; }
+
+    /* Section 3 — Three module cards */
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .module-card {
+      display: block;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-card);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-card);
+      transition: var(--transition-base);
+      text-decoration: none;
+      color: inherit;
+    }
+    .module-card:hover {
+      border-color: var(--gray-400);
+      box-shadow: var(--shadow-card-hover);
+      transform: translateY(-1px);
+    }
+    .module-icon { font-size: 36px; line-height: 1; }
+    .module-name { font-size: 30px; font-weight: 500; color: var(--gray-900); margin: var(--space-3) 0 var(--space-2) 0; }
+    .module-desc { font-size: 18px; line-height: 1.55; color: var(--gray-500); margin: 0; }
+
+    /* Section 4 — Hint bar (DESIGN_SYSTEM 5.10) */
+    .hint-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--amber-50);
+      border: 1px solid #FCD9A8;
+      border-radius: var(--radius-card);
+      padding: 16px 24px;
+      text-decoration: none;
+      transition: var(--transition-base);
+      cursor: pointer;
+    }
+    .hint-bar:hover { background: #FDEBD0; }
+    .hint-text { color: var(--gray-700); font-size: 18px; }
+    .hint-arrow { color: var(--gray-700); font-size: 30px; }
+
+    @media (max-width: 760px) {
+      .module-grid { grid-template-columns: 1fr; }
+      .pledge-card { width: 100%; min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="landing-brandbar">
+    <div class="spark-container row">
+      <a href="index.html" class="spark-logo brand-wordmark">
+        <img src="assets/logo.svg" alt="" width="20" height="20" class="spark-logo__mark" aria-hidden="true" />
+        <span class="spark-logo__text">Spark</span>
+      </a>
+      <a href="profile.html" id="avatar" class="avatar" aria-label="My Profile" title="My Profile">?</a>
+    </div>
+  </header>
+
+  <main class="spark-container landing-main">
+    <!-- Section 1 — Hero -->
+    <section class="hero">
+      <span class="hero-sparkle" aria-hidden="true">&#10022;</span>
+      <p class="hero-welcome" id="welcome">Welcome back.</p>
+      <h1 class="hero-title">Your AI Journey</h1>
+      <p class="hero-subline">You're on your way. Here's where the organization stands, and where you can go next.</p>
+    </section>
+
+    <!-- Section 2 — Pledge card -->
+    <section class="section">
+      <a href="pledge.html" class="pledge-card" aria-label="Open the pledge">
+        <p class="pledge-label">Pledge</p>
+        <p class="pledge-preview" id="pledge-preview">&hellip;</p>
+        <span class="pledge-cta" id="pledge-cta">View your team's pledge &rarr;</span>
+      </a>
+    </section>
+
+    <!-- Section 3 — Three module cards (order: Workflows / Explore / Trust Center) -->
+    <section class="section module-grid">
+      <a href="workflows.html" class="module-card">
+        <div class="module-icon" aria-hidden="true">&#128203;</div>
+        <h2 class="module-name">Workflows</h2>
+        <p class="module-desc">Use AI safely on your real work.</p>
+      </a>
+      <a href="explore.html" class="module-card">
+        <div class="module-icon" aria-hidden="true">&#128269;</div>
+        <h2 class="module-name">Explore</h2>
+        <p class="module-desc">See teammates' cases, practice, share ideas, join PODs.</p>
+      </a>
+      <a href="trust-center.html" class="module-card">
+        <div class="module-icon" aria-hidden="true">&#128737;&#65039;</div>
+        <h2 class="module-name">Trust Center</h2>
+        <p class="module-desc">Check the rules, ask the chatbot, see the Director's guidance.</p>
+      </a>
+    </section>
+
+    <!-- Section 4 — Hint bar -->
+    <section class="section">
+      <a href="trust-center.html" class="hint-bar" aria-label="Go to Trust Center">
+        <span class="hint-text">&#128161; Need to check what's allowed? &rarr; Go to Trust Center for more information.</span>
+        <span class="hint-arrow" aria-hidden="true">&rarr;</span>
+      </a>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
+  <script>
+    const user = requireAuth();
+    if (user) {
+      const data = getMergedData();
+      const firstName = user.name.split(' ')[0];
+
+      document.getElementById('welcome').textContent = `Welcome back, ${firstName}.`;
+      document.getElementById('avatar').textContent = user.avatarInitials;
+
+      // One-sentence truncated preview of the enterprise pledge (DESIGN_LOGIC 4.1.2).
+      const enterpriseText = data.pledges.enterprise.text || '';
+      const firstSentence = enterpriseText.split('. ')[0];
+      const preview = firstSentence.endsWith('.') ? firstSentence : `${firstSentence}.`;
+      document.getElementById('pledge-preview').textContent = preview;
+
+      // Role-conditional CTA copy (DESIGN_LOGIC 3.5.1, SPEC 6.4).
+      document.getElementById('pledge-cta').innerHTML = user.role === 'manager'
+        ? "View or edit your team's pledge &rarr;"
+        : "View your team's pledge &rarr;";
+
+      document.getElementById('footer').innerHTML = renderFooter();
+    }
+  </script>
+</body>
+</html>

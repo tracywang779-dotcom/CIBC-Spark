@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spark — Skill Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <style>
+    .exercise-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
+    .exercise-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-card);
+      padding: var(--space-5);
+      box-shadow: var(--shadow-card);
+      cursor: pointer;
+      transition: var(--transition-base);
+      text-align: left;
+      font-family: inherit;
+      width: 100%;
+    }
+    .exercise-card:hover {
+      border-color: var(--gray-400);
+      box-shadow: var(--shadow-card-hover);
+      transform: translateY(-1px);
+    }
+    .exercise-icon { font-size: 28px; margin-bottom: var(--space-2); }
+    .exercise-card h3 { font-size: 20px; font-weight: 600; margin: 0 0 var(--space-2) 0; color: var(--gray-900); }
+    .exercise-card p { font-size: 16px; color: var(--gray-500); margin: 0 0 var(--space-3) 0; line-height: 1.5; }
+    .duration {
+      display: inline-block;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--gray-700);
+      background: var(--gray-100);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .faq-item { margin-bottom: var(--space-4); }
+    .faq-item:last-child { margin-bottom: 0; }
+    .faq-item strong { display: block; font-size: 16px; margin-bottom: 4px; color: var(--gray-900); }
+    .faq-item p { margin: 0; font-size: 16px; line-height: 1.5; color: var(--gray-500); }
+  </style>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <main class="spark-container explore-page">
+    <a class="explore-back" href="explore.html">&larr; Back to Explore</a>
+
+    <header class="explore-head">
+      <h1 class="explore-title">Skill Lab</h1>
+      <p class="explore-lead">Short, no-stakes practice with fake scenarios. Nothing here touches real work, and nothing is stored between visits.</p>
+    </header>
+
+    <div class="explore-split">
+      <div class="explore-main">
+        <section class="exercise-grid" id="exercises" aria-label="Practice exercises"></section>
+      </div>
+
+      <aside class="explore-sidebar" id="sidebar"></aside>
+    </div>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
+  <script>
+    const user = requireAuth();
+    if (user) {
+      mountChrome('explore');
+
+      const data = getMergedData();
+      const sidebarFaqs = data.faq.filter((item) => ['faq-001', 'faq-002', 'faq-003'].includes(item.id));
+
+      document.getElementById('sidebar').innerHTML = sidebarFaqs.map((item) => `
+        <section class="explore-panel">
+          <div class="faq-item">
+            <strong>${item.question}</strong>
+            <p>${item.answer}</p>
+          </div>
+        </section>
+      `).join('');
+
+      const exercises = [
+        { title: 'Spot the shaky output', desc: 'Practice recognizing when an AI summary overstates certainty.', duration: '5 min' },
+        { title: 'Prompt tuning basics', desc: 'Rewrite a vague prompt into something verifiable.', duration: '5 min' },
+        { title: 'Confidence reader', desc: 'Match mock outputs to High, Medium, or Low confidence.', duration: '5 min' }
+      ];
+
+      document.getElementById('exercises').innerHTML = exercises.map((ex) => `
+        <button type="button" class="exercise-card" data-title="${ex.title}">
+          <div class="exercise-icon" aria-hidden="true">&#10003;</div>
+          <h3>${ex.title}</h3>
+          <p>${ex.desc}</p>
+          <span class="duration">${ex.duration}</span>
+        </button>
+      `).join('');
+
+      document.getElementById('exercises').addEventListener('click', (event) => {
+        const card = event.target.closest('.exercise-card');
+        if (card) showToast('Coming soon in v2 — exercises are look-only in this prototype.');
+      });
+    }
+  </script>
+</body>
+</html>

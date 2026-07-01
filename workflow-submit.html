@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spark — Submit as a Case</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/ui-v2.css" />
+  <style>
+    .page { padding: var(--space-10) 0 var(--space-12) 0; }
+    .page-title { font-size: 42px; font-weight: 600; line-height: 1.25; margin: 0 0 var(--space-2) 0; }
+    .page-lead { font-size: 24px; color: var(--gray-500); margin: 0 0 var(--space-6) 0; max-width: 65ch; }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-card);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-card);
+      margin-bottom: var(--space-5);
+    }
+    .card-title { font-size: 30px; font-weight: 600; margin: 0 0 var(--space-4) 0; }
+
+    .readonly-grid { display: grid; gap: var(--space-4); }
+    .readonly-item label {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--gray-500);
+      margin-bottom: var(--space-1);
+    }
+    .readonly-item .value {
+      font-size: 18px;
+      color: var(--gray-900);
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+    .readonly-item ul { margin: 0; padding-left: 1.2rem; font-size: 18px; color: var(--gray-900); }
+
+    .field-label { display: block; font-size: 16px; font-weight: 600; color: var(--gray-700); margin-bottom: var(--space-2); }
+    .text-input {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-button);
+      padding: 10px 14px;
+      font-size: 18px;
+      font-family: inherit;
+      background: var(--white);
+    }
+    .text-input:focus {
+      outline: none;
+      border-color: var(--cibc-red);
+      box-shadow: 0 0 0 2px var(--cibc-red-light);
+    }
+    .text-input--narrow { max-width: 160px; }
+
+    .btn-row { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+    .btn-primary, .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 20px;
+      border-radius: var(--radius-button);
+      font-weight: 500;
+      font-size: 18px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition-base);
+      border: none;
+      text-decoration: none;
+    }
+    .btn-primary { background: var(--cibc-red); color: var(--white); }
+    .btn-primary:hover { background: var(--cibc-red-dark); }
+    .btn-secondary {
+      background: var(--white);
+      color: var(--gray-900);
+      border: 1px solid var(--gray-200);
+    }
+    .btn-secondary:hover { background: var(--gray-50); border-color: var(--gray-400); }
+
+    .confirmation {
+      text-align: center;
+      padding: var(--space-8) var(--space-6);
+    }
+    .confirmation h2 { font-size: 36px; font-weight: 600; margin: 0 0 var(--space-3) 0; }
+    .confirmation p { font-size: 24px; color: var(--gray-500); margin: 0 0 var(--space-6) 0; }
+    .confirmation .btn-row { justify-content: center; }
+
+    .empty-state { text-align: center; padding: var(--space-8); color: var(--gray-500); }
+    .empty-state p { margin: 0 0 var(--space-4) 0; }
+  </style>
+</head>
+<body class="ui-v2">
+  <div id="nav"></div>
+
+  <main class="spark-container page">
+    <div id="page-content"></div>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
+  <script>
+    const user = requireAuth();
+    if (user) {
+      mountChrome('workflows');
+
+      const params = new URLSearchParams(window.location.search);
+      const workflowId = params.get('id');
+      const run = getWorkflowRun();
+      const content = document.getElementById('page-content');
+
+      const showMissingRun = () => {
+        content.innerHTML = `
+          <div class="card">
+            ${renderEmptyState(
+              'Complete a workflow and choose \u201cSubmit as a case\u201d to share it with your team in Explore.',
+              {
+                icon: '&#128203;',
+                actionHtml: '<a class="spark-btn-primary" href="workflows.html">Go to Workflows</a>'
+              }
+            )}
+          </div>
+        `;
+      };
+
+      if (!run || run.workflowId !== workflowId) {
+        showMissingRun();
+      } else {
+        const today = new Date().toISOString().slice(0, 10);
+
+        content.innerHTML = `
+          <h1 class="page-title">Submit as a case</h1>
+          <p class="page-lead">Share your verified workflow run with teammates in Explore. Your audit trail fields are included automatically.</p>
+
+          <section class="card" aria-labelledby="audit-heading">
+            <h2 class="card-title" id="audit-heading">Your workflow run</h2>
+            <div class="readonly-grid">
+              <div class="readonly-item">
+                <label>Workflow</label>
+                <div class="value">${run.workflowName}</div>
+              </div>
+              <div class="readonly-item">
+                <label>Prompt used</label>
+                <div class="value">${run.prompt}</div>
+              </div>
+              <div class="readonly-item">
+                <label>Original AI output</label>
+                <div class="value">${run.originalOutput}</div>
+              </div>
+              <div class="readonly-item">
+                <label>Confidence at time of use</label>
+                <div class="value">${renderConfidencePill(run.confidence, true)}</div>
+              </div>
+              <div class="readonly-item">
+                <label>Verification checklist</label>
+                <ul>${run.checklistCompleted.map((item) => `<li>${item}</li>`).join('')}</ul>
+              </div>
+              <div class="readonly-item">
+                <label>Final version (after your edits)</label>
+                <div class="value">${run.finalOutput}</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="card" aria-labelledby="form-heading">
+            <h2 class="card-title" id="form-heading">Tell teammates about it</h2>
+            <div style="margin-bottom: var(--space-4);">
+              <label class="field-label" for="case-title">What did this help you with?</label>
+              <input class="text-input" id="case-title" type="text"
+                     placeholder="e.g. Drafted the discrepancy explanation in 5 min instead of 25." />
+            </div>
+            <div>
+              <label class="field-label" for="time-saved">Estimated time saved (minutes)</label>
+              <input class="text-input text-input--narrow" id="time-saved" type="number" min="1" max="999" value="20" />
+            </div>
+            <div class="btn-row">
+              <button type="button" class="btn-primary" id="btn-submit">Submit</button>
+              <a class="btn-secondary" href="workflow-detail.html?id=${run.workflowId}">Back to workflow</a>
+            </div>
+          </section>
+        `;
+
+        document.getElementById('btn-submit').addEventListener('click', () => {
+          const title = document.getElementById('case-title').value.trim();
+          const timeSaved = parseInt(document.getElementById('time-saved').value, 10);
+
+          if (!title) {
+            document.getElementById('case-title').focus();
+            document.getElementById('case-title').style.borderColor = 'var(--danger)';
+            return;
+          }
+
+          const caseId = `case-runtime-${Date.now()}`;
+          const newCase = {
+            id: caseId,
+            title,
+            author: user.name,
+            department: user.department,
+            workflowId: run.workflowId,
+            workflowName: run.workflowName,
+            prompt: run.prompt,
+            summary: title,
+            originalOutput: run.originalOutput,
+            finalOutput: run.finalOutput,
+            confidence: run.confidence,
+            confidenceNote: run.confidenceNote,
+            checklistCompleted: run.checklistCompleted,
+            timeSavedMinutes: Number.isFinite(timeSaved) ? timeSaved : 0,
+            upvotes: 0,
+            commentCount: 0,
+            createdAt: today,
+            isRuntime: true
+          };
+
+          appendPeerCase(newCase);
+          clearWorkflowRun();
+
+          content.innerHTML = `
+            <div class="confirmation card">
+              <h2>Your case has been published to Explore.</h2>
+              <p>Teammates can now read your run, upvote it, and try your prompt in a workflow.</p>
+              <div class="btn-row">
+                <a class="btn-primary" href="case-detail.html?id=${caseId}">View my case</a>
+                <a class="btn-secondary" href="workflows.html">Return to Workflows</a>
+              </div>
+            </div>
+          `;
+        });
+      }
+    }
+  </script>
+</body>
+</html>

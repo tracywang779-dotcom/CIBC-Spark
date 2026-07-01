@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spark — Edit Pledge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <style>
+    .page { padding: var(--space-10) 0 var(--space-12) 0; }
+    .page-title { font-size: 42px; font-weight: 600; line-height: 1.25; margin: 0 0 var(--space-2) 0; }
+    .page-sub { font-size: 16px; color: var(--gray-500); margin: 0 0 var(--space-2) 0; }
+    .new-warning {
+      display: none;
+      font-size: 16px;
+      color: var(--cibc-red);
+      background: var(--cibc-red-light);
+      border-radius: var(--radius-button);
+      padding: 8px 12px;
+      margin: 0 0 var(--space-8) 0;
+    }
+    .page-sub + .new-warning { margin-top: var(--space-3); }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-card);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-card);
+    }
+    .card--accent { border-top: 3px solid var(--cibc-red); }
+
+    /* AI assist (New mode only) */
+    .ai-assist {
+      display: none;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-card);
+      padding: var(--space-5);
+      margin-bottom: var(--space-6);
+    }
+    .ai-assist h2 { font-size: 18px; font-weight: 600; color: var(--gray-900); margin: 0 0 var(--space-1) 0; }
+    .ai-assist .hint { font-size: 16px; color: var(--gray-500); margin: 0 0 var(--space-4) 0; }
+    .ai-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+    .ai-row + .ai-row { margin-top: var(--space-4); }
+
+    .chip {
+      padding: 6px 12px;
+      border: 1px solid var(--gray-200);
+      border-radius: 999px;
+      background: var(--white);
+      color: var(--gray-700);
+      font-size: 16px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition-base);
+    }
+    .chip:hover { border-color: var(--gray-400); }
+
+    .ai-describe {
+      flex: 1 1 260px;
+      min-width: 200px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-button);
+      padding: 9px 12px;
+      font-size: 16px;
+      font-family: inherit;
+      color: var(--gray-900);
+      background: var(--white);
+      transition: border-color 0.15s ease;
+    }
+    .ai-describe:focus { border-color: var(--cibc-red); outline: 2px solid var(--cibc-red-light); }
+
+    .btn-generate {
+      display: inline-flex; align-items: center; gap: var(--space-2);
+      background: var(--cibc-red); color: var(--white);
+      padding: 9px 16px; border: none; border-radius: var(--radius-button);
+      font-weight: 500; font-size: 16px; font-family: inherit; cursor: pointer;
+      white-space: nowrap; transition: background 0.15s ease;
+    }
+    .btn-generate:hover { background: var(--cibc-red-dark); }
+    .btn-generate:disabled { background: var(--gray-100); color: var(--gray-400); cursor: not-allowed; }
+
+    .ai-postgen { display: none; gap: var(--space-2); }
+    .btn-mini {
+      background: var(--white); color: var(--gray-900);
+      padding: 6px 12px; border: 1px solid var(--gray-200); border-radius: var(--radius-button);
+      font-weight: 500; font-size: 16px; font-family: inherit; cursor: pointer;
+      transition: var(--transition-base);
+    }
+    .btn-mini:hover { background: var(--gray-50); border-color: var(--gray-400); }
+
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.5);
+      border-top-color: var(--white);
+      border-radius: 50%;
+      display: inline-block;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .field { margin-bottom: var(--space-6); }
+    .field-label { display: block; font-size: 18px; font-weight: 600; color: var(--gray-900); margin-bottom: var(--space-1); }
+    .field-hint { font-size: 16px; color: var(--gray-500); margin: 0 0 var(--space-3) 0; }
+
+    .textarea {
+      width: 100%; box-sizing: border-box; min-height: 140px;
+      border: 1px solid var(--gray-200); border-radius: var(--radius-button);
+      padding: 10px 14px; font-size: 18px; line-height: 1.55; font-family: inherit;
+      color: var(--gray-900); background: var(--white); resize: vertical;
+      transition: border-color 0.15s ease;
+    }
+    .textarea:focus { border-color: var(--cibc-red); outline: 2px solid var(--cibc-red-light); }
+
+    .pill-group { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .pill {
+      padding: 6px 14px; border: 1px solid var(--gray-200); border-radius: 999px;
+      background: var(--white); color: var(--gray-700); font-size: 16px; font-weight: 500;
+      font-family: inherit; cursor: pointer; transition: var(--transition-base);
+    }
+    .pill:hover { border-color: var(--gray-400); }
+    .pill[aria-pressed="true"] { background: var(--cibc-red-light); border-color: var(--cibc-red); color: var(--cibc-red); }
+
+    .actions { display: flex; align-items: center; gap: var(--space-3); margin-top: var(--space-8); }
+    .btn-primary {
+      background: var(--cibc-red); color: var(--white);
+      padding: 10px 20px; border: none; border-radius: var(--radius-button);
+      font-weight: 500; font-size: 18px; font-family: inherit; cursor: pointer;
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+    .btn-primary:hover { background: var(--cibc-red-dark); }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { background: var(--gray-100); color: var(--gray-400); cursor: not-allowed; }
+    .btn-secondary {
+      background: var(--white); color: var(--gray-900);
+      padding: 10px 20px; border: 1px solid var(--gray-200); border-radius: var(--radius-button);
+      font-weight: 500; font-size: 18px; font-family: inherit; cursor: pointer;
+      text-decoration: none; display: inline-flex; align-items: center;
+      transition: var(--transition-base);
+    }
+    .btn-secondary:hover { background: var(--gray-50); border-color: var(--gray-400); }
+    .save-hint { display: none; font-size: 16px; color: var(--gray-500); }
+
+    .preview { margin-top: var(--space-6); }
+    .preview[hidden] { display: none; }
+    .preview-eyebrow { font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--gray-500); margin: 0 0 var(--space-3) 0; }
+    .manager-name { font-size: 30px; font-weight: 600; color: var(--gray-900); margin: 0; }
+    .manager-title { font-size: 16px; color: var(--gray-500); margin: var(--space-1) 0 0 0; }
+    .pledge-statement { font-size: 24px; line-height: 1.55; color: var(--gray-900); margin: var(--space-5) 0; max-width: 65ch; }
+    .task-group { margin-top: var(--space-5); }
+    .task-group h3 { font-size: 16px; font-weight: 600; color: var(--gray-700); margin: 0 0 var(--space-2) 0; }
+    .task-list { display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; padding: 0; margin: 0; }
+    .task-pill { display: inline-block; padding: 4px 10px; background: var(--gray-100); color: var(--gray-700); border-radius: 6px; font-size: 15px; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div id="nav"></div>
+
+  <main class="spark-container page">
+    <h1 class="page-title" id="page-title">Edit your team's pledge</h1>
+    <p class="page-sub" id="page-sub">Operational department</p>
+    <p class="new-warning" id="new-warning">This will replace your current pledge.</p>
+
+    <section class="card card--accent">
+      <!-- AI assist (New mode only) -->
+      <div class="ai-assist" id="ai-assist">
+        <h2>Need a starting point?</h2>
+        <p class="hint">Pick a tone to drop in a draft, or describe your team and let AI suggest one. Everything here is a starting point — you still write the final words.</p>
+        <div class="ai-row" id="starter-chips"></div>
+        <div class="ai-row">
+          <input class="ai-describe" id="ai-describe" type="text"
+                 placeholder="Describe your team's spirit (e.g., 'careful, time-saving')" />
+          <button class="btn-generate" id="generate-btn" type="button">
+            <span id="generate-label">&#10024; Generate with AI</span>
+          </button>
+          <span class="ai-postgen" id="ai-postgen">
+            <button class="btn-mini" id="regen-btn" type="button">Regenerate</button>
+            <button class="btn-mini" id="usethis-btn" type="button">Use this</button>
+          </span>
+        </div>
+      </div>
+
+      <!-- Editor -->
+      <div id="editor">
+        <div class="field">
+          <label class="field-label" for="statement">Pledge statement</label>
+          <p class="field-hint">Write in your own voice. A few clear sentences works best.</p>
+          <textarea class="textarea" id="statement" placeholder="Write your team's pledge&hellip;"></textarea>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Tasks I encourage my team to try AI on</span>
+          <p class="field-hint">Select from the shared task list.</p>
+          <div class="pill-group" id="encouraged-group"></div>
+        </div>
+
+        <div class="field">
+          <span class="field-label">Tasks I want my team to check with me first</span>
+          <p class="field-hint">Select from the shared task list.</p>
+          <div class="pill-group" id="checkfirst-group"></div>
+        </div>
+      </div>
+
+      <!-- Inline preview (toggled) -->
+      <div class="preview" id="preview" hidden>
+        <p class="preview-eyebrow">Preview &mdash; as employees will see it</p>
+        <p class="manager-name" id="pv-name"></p>
+        <p class="manager-title" id="pv-title"></p>
+        <p class="pledge-statement" id="pv-statement"></p>
+        <div class="task-group">
+          <h3>Tasks I encourage my team to try AI on</h3>
+          <ul class="task-list" id="pv-encouraged"></ul>
+        </div>
+        <div class="task-group">
+          <h3>Tasks I want my team to check with me first</h3>
+          <ul class="task-list" id="pv-checkfirst"></ul>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-secondary" id="preview-btn" type="button">Preview as employees will see it</button>
+        <button class="btn-primary" id="save-btn" type="button">Save</button>
+        <a class="btn-secondary" id="cancel-btn" href="pledge.html">Cancel</a>
+        <span class="save-hint" id="save-hint">Make at least one edit to the AI suggestion to save.</span>
+      </div>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
+  <script>
+    const user = requireAuth();
+    if (user) {
+      if (user.role !== 'manager') {
+        // Employees cannot edit (DESIGN_LOGIC 4.2.5).
+        window.location.href = 'pledge.html';
+      } else {
+        mountChrome(null);
+        document.getElementById('footer').innerHTML = renderFooter();
+
+        const params = new URLSearchParams(window.location.search);
+        const mode = params.get('mode') === 'new' ? 'new' : 'edit';
+
+        const DEPT = user.department; // managers edit only their own department
+        const data = getMergedData();
+        const current = data.pledges.departments[DEPT] || { text: '', encouragedTasks: [], checkFirstTasks: [] };
+        const vocabulary = data.boundaries.map((b) => b.task);
+
+        // Operational-flavored starter drafts (mock content).
+        const STARTERS = {
+          'Encouraging tone': 'Our team treats AI as a genuine teammate. I want you to experiment, share what works, and bring your wins back to the group. The faster we learn together, the more time we free up for the judgment calls that actually need us.',
+          'Cautious tone': 'AI is a helpful drafting tool for our team, but it never has the final word. Use it to get a head start, then check every number and claim against the source before anything leaves your desk. When in doubt, ask first.',
+          'Balanced tone': 'Our team uses AI to move faster on routine reconciliation and communication work, while keeping a person in control of anything that touches client money or risk. Lean on it for first drafts and summaries, and apply your own review before you rely on the result.'
+        };
+
+        // Mock "AI generated" pledges. Generate picks by keyword; Regenerate cycles.
+        const GENERATED = [
+          'Our team uses AI to take the busywork out of reconciliation and routine email, so we can spend our attention where it matters most. We treat every AI output as a first draft \u2014 useful, but always reviewed by the person who owns the decision.',
+          'Our team uses AI carefully and deliberately. It helps us draft and summarize faster, but a person always reviews the output before it informs a decision. We would rather slow down than rely on something we have not checked.',
+          'Our team uses AI to save real time on routine reconciliation and communication work. We let it handle the first pass, then apply human judgment to anything that touches client money, numbers, or risk.'
+        ];
+
+        // --- Element refs ---
+        const titleEl = document.getElementById('page-title');
+        const subEl = document.getElementById('page-sub');
+        const warningEl = document.getElementById('new-warning');
+        const aiAssist = document.getElementById('ai-assist');
+        const statementEl = document.getElementById('statement');
+        const saveBtn = document.getElementById('save-btn');
+        const saveHint = document.getElementById('save-hint');
+        const generateBtn = document.getElementById('generate-btn');
+        const generateLabel = document.getElementById('generate-label');
+        const aiPostgen = document.getElementById('ai-postgen');
+        const describeEl = document.getElementById('ai-describe');
+
+        const encouragedSelected = new Set();
+        const checkFirstSelected = new Set();
+
+        // --- Mode configuration ---
+        if (mode === 'new') {
+          titleEl.textContent = 'Write a new pledge';
+          warningEl.style.display = 'block';
+          aiAssist.style.display = 'block';
+          statementEl.value = '';
+        } else {
+          titleEl.textContent = "Edit your team's pledge";
+          statementEl.value = current.text || '';
+          (current.encouragedTasks || []).forEach((t) => encouragedSelected.add(t));
+          (current.checkFirstTasks || []).forEach((t) => checkFirstSelected.add(t));
+        }
+        subEl.textContent = `${DEPT} department`;
+
+        buildPills('encouraged-group', vocabulary, encouragedSelected);
+        buildPills('checkfirst-group', vocabulary, checkFirstSelected);
+
+        // --- Save guard (DESIGN_LOGIC 4.2.5: deliberate authorial act) ---
+        // Edit mode is saveable immediately (existing behavior). New mode stays
+        // disabled until the manager manually edits the statement. Programmatic
+        // fills (chips / Generate) do NOT count, because they don't fire 'input'.
+        let manuallyEdited = (mode === 'edit');
+
+        statementEl.addEventListener('input', () => {
+          manuallyEdited = true;
+          updateSaveState();
+        });
+
+        function updateSaveState() {
+          const enabled = (mode === 'edit')
+            ? true
+            : (manuallyEdited && statementEl.value.trim().length > 0);
+          saveBtn.disabled = !enabled;
+          saveHint.style.display = (mode === 'new' && !enabled) ? 'inline' : 'none';
+        }
+        updateSaveState();
+
+        // --- AI assist wiring (New mode only) ---
+        if (mode === 'new') {
+          buildStarterChips();
+
+          let genIndex = 0;
+          generateBtn.addEventListener('click', () => runGenerate(pickGenIndex(describeEl.value)));
+          document.getElementById('regen-btn').addEventListener('click', () => {
+            genIndex = (genIndex + 1) % GENERATED.length;
+            runGenerate(genIndex);
+          });
+          document.getElementById('usethis-btn').addEventListener('click', () => {
+            statementEl.focus();
+          });
+
+          function pickGenIndex(desc) {
+            const d = (desc || '').toLowerCase();
+            if (/care|caut|safe|risk|oversight|review|conserv/.test(d)) { genIndex = 1; }
+            else if (/time|fast|speed|effic|save|quick|productiv/.test(d)) { genIndex = 2; }
+            else { genIndex = 0; }
+            return genIndex;
+          }
+
+          function runGenerate(index) {
+            generateBtn.disabled = true;
+            generateLabel.innerHTML = '<span class="spinner" aria-hidden="true"></span> Generating&hellip;';
+            // Mock async "thinking" (~1s), per SPEC.md Section 7 / DESIGN_SYSTEM 7.5.
+            setTimeout(() => {
+              setStatementProgrammatically(GENERATED[index]);
+              generateBtn.disabled = false;
+              generateLabel.innerHTML = '&#10024; Generate with AI';
+              aiPostgen.style.display = 'inline-flex';
+            }, 1000);
+          }
+        }
+
+        function buildStarterChips() {
+          const container = document.getElementById('starter-chips');
+          const labels = {
+            'Encouraging tone': '\uD83D\uDCDD Encouraging tone',
+            'Cautious tone': '\uD83D\uDEE1\uFE0F Cautious tone',
+            'Balanced tone': '\u2696\uFE0F Balanced tone',
+            'Start blank': '\u2728 Start blank'
+          };
+          Object.keys(labels).forEach((key) => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'chip';
+            chip.innerHTML = labels[key];
+            chip.addEventListener('click', () => {
+              setStatementProgrammatically(key === 'Start blank' ? '' : STARTERS[key]);
+            });
+            container.appendChild(chip);
+          });
+        }
+
+        // Sets the textarea WITHOUT firing 'input' — so it does not satisfy the
+        // Save guard. The manager must still make a manual edit to save.
+        function setStatementProgrammatically(text) {
+          statementEl.value = text;
+          updateSaveState();
+        }
+
+        function buildPills(containerId, options, selectedSet) {
+          const container = document.getElementById(containerId);
+          options.forEach((task) => {
+            const pill = document.createElement('button');
+            pill.type = 'button';
+            pill.className = 'pill';
+            pill.textContent = task;
+            pill.setAttribute('aria-pressed', selectedSet.has(task) ? 'true' : 'false');
+            pill.addEventListener('click', () => {
+              if (selectedSet.has(task)) {
+                selectedSet.delete(task);
+                pill.setAttribute('aria-pressed', 'false');
+              } else {
+                selectedSet.add(task);
+                pill.setAttribute('aria-pressed', 'true');
+              }
+            });
+            container.appendChild(pill);
+          });
+        }
+
+        // --- Preview toggle (both modes) ---
+        const previewBtn = document.getElementById('preview-btn');
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+        previewBtn.addEventListener('click', () => {
+          const showingPreview = !preview.hidden;
+          if (showingPreview) {
+            preview.hidden = true;
+            editor.hidden = false;
+            if (mode === 'new') aiAssist.style.display = 'block';
+            previewBtn.textContent = 'Preview as employees will see it';
+          } else {
+            renderPreview();
+            editor.hidden = true;
+            if (mode === 'new') aiAssist.style.display = 'none';
+            preview.hidden = false;
+            previewBtn.textContent = 'Back to editing';
+          }
+        });
+
+        function renderPreview() {
+          document.getElementById('pv-name').textContent = current.manager || user.name;
+          document.getElementById('pv-title').textContent = current.managerTitle || user.title;
+          const text = statementEl.value.trim();
+          document.getElementById('pv-statement').textContent = text || 'Write your team\u2019s pledge\u2026';
+          fillList('pv-encouraged', Array.from(encouragedSelected));
+          fillList('pv-checkfirst', Array.from(checkFirstSelected));
+        }
+
+        function fillList(id, items) {
+          const el = document.getElementById(id);
+          el.innerHTML = items.length
+            ? items.map((t) => `<li class="task-pill">${escapeHtml(t)}</li>`).join('')
+            : '<li class="task-pill" style="background:transparent;color:var(--gray-400);">None selected</li>';
+        }
+
+        // --- Save → persist to runtime, redirect with banner trigger ---
+        saveBtn.addEventListener('click', () => {
+          if (saveBtn.disabled) return;
+          const runtime = getRuntime();
+          const overrides = { ...(runtime.pledgeOverrides || {}) };
+          overrides[DEPT] = {
+            manager: current.manager || user.name,
+            managerTitle: current.managerTitle || user.title,
+            text: statementEl.value.trim(),
+            encouragedTasks: Array.from(encouragedSelected),
+            checkFirstTasks: Array.from(checkFirstSelected),
+            lastUpdated: new Date().toISOString().slice(0, 10)
+          };
+          updateRuntime({ pledgeOverrides: overrides });
+          window.location.href = 'pledge.html?updated=1';
+        });
+
+        function escapeHtml(str) {
+          return String(str)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+      }
+    }
+  </script>
+</body>
+</html>

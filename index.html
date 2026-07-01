@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spark — Your AI Journey</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/landing-v2.css" />
+</head>
+<body class="landing-v2">
+  <div class="landing-bg-logos" aria-hidden="true">
+    <img src="assets/logo.svg" alt="" class="landing-bg-logo landing-bg-logo--1" width="160" height="160" />
+    <img src="assets/logo.svg" alt="" class="landing-bg-logo landing-bg-logo--2" width="200" height="200" />
+    <img src="assets/logo.svg" alt="" class="landing-bg-logo landing-bg-logo--3" width="128" height="128" />
+  </div>
+
+  <header class="landing-brandbar">
+    <div class="spark-container row">
+      <a href="index.html" class="spark-logo">
+        <img src="assets/logo.svg" alt="" width="20" height="20" class="spark-logo__mark" aria-hidden="true" />
+        <span class="spark-logo__text">Spark</span>
+      </a>
+      <a href="profile.html" id="avatar" class="landing-avatar" aria-label="My Profile" title="My Profile">?</a>
+    </div>
+  </header>
+
+  <main class="spark-container landing-main">
+    <section class="landing-hero" aria-labelledby="landing-headline">
+      <p class="landing-welcome" id="welcome">Welcome back.</p>
+      <h1 class="landing-headline" id="landing-headline">
+        Your <span class="landing-accent">AI Journey</span>
+      </h1>
+      <p class="landing-subline">You&rsquo;re on your way. Here&rsquo;s where the organization stands, and where you can go next.</p>
+    </section>
+
+    <div class="landing-pledge-wrap">
+      <a href="pledge.html" class="landing-pledge" aria-label="Open the pledge">
+        <p class="landing-pledge-label">Pledge</p>
+        <p class="landing-pledge-preview" id="pledge-preview">&hellip;</p>
+        <span class="landing-pledge-cta" id="pledge-cta">View your team&rsquo;s pledge &rarr;</span>
+      </a>
+    </div>
+
+    <section class="landing-spheres" aria-label="Choose a module">
+      <a href="workflows.html" class="landing-sphere landing-sphere--workflows" aria-label="Workflows — Use AI safely on your real work">
+        <span>Workflows</span>
+      </a>
+      <a href="explore.html" class="landing-sphere landing-sphere--explore" aria-label="Explore — See teammates cases, practice, share ideas">
+        <span>Explore</span>
+      </a>
+      <a href="trust-center.html" class="landing-sphere landing-sphere--trust" aria-label="Trust Center — Check the rules and ask the chatbot">
+        <span>Trust Center</span>
+      </a>
+    </section>
+
+    <div class="landing-hint-wrap">
+      <a href="trust-center.html" class="landing-hint" aria-label="Go to Trust Center">
+        <span>&#128161; Need to check what&rsquo;s allowed?</span>
+        <span class="landing-hint-arrow">Trust Center &rarr;</span>
+      </a>
+    </div>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
+  <script>
+    const user = requireAuth();
+    if (user) {
+      const data = getMergedData();
+      const firstName = user.name.split(' ')[0];
+
+      document.getElementById('welcome').textContent = `Welcome back, ${firstName}.`;
+      document.getElementById('avatar').textContent = user.avatarInitials;
+
+      const enterpriseText = data.pledges.enterprise.text || '';
+      const firstSentence = enterpriseText.split('. ')[0];
+      const preview = firstSentence.endsWith('.') ? firstSentence : `${firstSentence}.`;
+      document.getElementById('pledge-preview').textContent = preview;
+
+      document.getElementById('pledge-cta').innerHTML = user.role === 'manager'
+        ? "View or edit your team&rsquo;s pledge &rarr;"
+        : "View your team&rsquo;s pledge &rarr;";
+
+      document.getElementById('footer').innerHTML = renderFooter();
+    }
+  </script>
+</body>
+</html>

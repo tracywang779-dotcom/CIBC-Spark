@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spark — Peer Cases</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/ui-v2.css" />
+  <style>
+    .manager-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--cibc-red);
+    }
+    .faq-snippet { font-size: 16px; line-height: 1.55; color: var(--gray-700); margin: 0; }
+    .sidebar-case-title { font-size: 24px; font-weight: 600; margin: 0 0 var(--space-2) 0; color: var(--white); }
+    .sidebar-case-meta { font-size: 16px; color: rgba(255,255,255,0.75); margin: 0; }
+  </style>
+</head>
+<body class="ui-v2">
+  <div id="nav"></div>
+
+  <main class="spark-container explore-page">
+    <a class="explore-back" href="explore.html">&larr; Back to Explore</a>
+
+    <header class="explore-head">
+      <h1 class="explore-title">Peer Cases</h1>
+      <p class="explore-lead">Real AI-assisted runs shared by your teammates. Learn from what worked, and reuse verified prompts.</p>
+    </header>
+
+    <div class="explore-split">
+      <div class="explore-main">
+        <div class="explore-toolbar">
+          <div class="explore-pills" role="tablist" aria-label="Peer Cases view">
+            <button type="button" id="tab-cases" class="explore-pill active" role="tab" aria-selected="true">Cases</button>
+            <button type="button" id="tab-prompts" class="explore-pill" role="tab" aria-selected="false">Prompts</button>
+            <span style="width:1px;height:24px;background:var(--gray-200);margin:0 4px;" aria-hidden="true"></span>
+            <button type="button" class="explore-pill role-pill active" data-family="all">All roles</button>
+            <button type="button" class="explore-pill role-pill" data-family="reconciliation">Reconciliation Analyst</button>
+            <button type="button" class="explore-pill role-pill" data-family="email-approval">Approval Processor</button>
+          </div>
+          <span class="explore-count" id="result-count"></span>
+        </div>
+
+        <div class="feed-list" id="cards" role="tabpanel"></div>
+      </div>
+
+      <aside class="explore-sidebar" id="sidebar"></aside>
+    </div>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
+  <script>
+    const user = requireAuth();
+    if (user) {
+      mountChrome('explore');
+
+      let view = 'cases';
+      let familyFilter = 'all';
+      const mineOnly = new URLSearchParams(window.location.search).get('mine') === '1';
+      const cardsEl = document.getElementById('cards');
+      const sidebarEl = document.getElementById('sidebar');
+      const tabCases = document.getElementById('tab-cases');
+      const tabPrompts = document.getElementById('tab-prompts');
+      const resultCount = document.getElementById('result-count');
+
+      const getFilteredCases = (data) => {
+        return [...data.peerCases]
+          .map((c) => enrichPeerCase(c, data.workflows, data.comments))
+          .filter((c) => {
+            if (mineOnly && c.author !== user.name) return false;
+            if (familyFilter === 'all') return true;
+            const wf = getWorkflowById(data.workflows, c.workflowId);
+            return wf && wf.family === familyFilter;
+          })
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      };
+
+      const renderSidebar = (data, cases) => {
+        const topCase = [...cases].sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0))[0];
+        const faq = data.faq.find((item) => item.id === 'faq-005');
+
+        sidebarEl.innerHTML = `
+          <section class="explore-panel explore-panel--dark" aria-label="Highlighted case">
+            <p class="explore-panel__title">&#128077; ${topCase ? topCase.title : 'Peer Cases'}</p>
+            ${topCase ? `
+              <p class="sidebar-case-title">${topCase.author}</p>
+              <p class="sidebar-case-meta">${topCase.upvotes || 0} upvotes · ${topCase.timeSavedMinutes} min saved</p>
+            ` : ''}
+          </section>
+          <section class="explore-panel" aria-label="FAQ">
+            <p class="explore-panel__title">&#128161; ${faq ? faq.question : ''}</p>
+            <p class="faq-snippet">${faq ? faq.answer : ''}</p>
+          </section>
+          <section class="explore-panel" aria-label="Peer Cases stats">
+            <p class="explore-panel__title">Peer Cases</p>
+            <div class="stat-row">
+              <div class="stat-item"><strong>${data.peerCases.length}</strong><span>cases</span></div>
+              <div class="stat-item"><strong>${data.peerCases.reduce((sum, c) => sum + (c.upvotes || 0), 0)}</strong><span>upvotes</span></div>
+              <div class="stat-item"><strong>${Object.values(data.comments).reduce((sum, list) => sum + list.length, 0)}</strong><span>comments</span></div>
+            </div>
+          </section>
+        `;
+      };
+
+      const render = () => {
+        const data = getMergedData();
+        const cases = getFilteredCases(data);
+        renderSidebar(data, cases);
+
+        const label = view === 'cases' ? 'cases' : 'prompts';
+        resultCount.textContent = `${cases.length} of ${data.peerCases.length} ${label}`;
+
+        if (cases.length === 0) {
+          const message = mineOnly
+            ? 'You haven\u2019t shared any Peer Cases yet. Complete a workflow and submit as a case to see them here.'
+            : 'No cases yet. Complete a workflow and submit as a case to share your run.';
+          const actionHtml = mineOnly
+            ? '<a class="spark-btn-primary" href="workflows.html">Go to Workflows</a>'
+            : '';
+          cardsEl.innerHTML = renderEmptyState(message, {
+            icon: '&#128196;',
+            actionHtml
+          });
+          return;
+        }
+
+        if (view === 'cases') {
+          cardsEl.innerHTML = cases.map((c) => `
+            <a class="feed-card" href="case-detail.html?id=${c.id}">
+              <div class="vote-rail" aria-hidden="true">
+                <span class="vote-rail__icon">&#9650;</span>
+                <span>${c.upvotes || 0}</span>
+                <span class="vote-rail__icon">&#9660;</span>
+              </div>
+              <div class="feed-body">
+                <div class="feed-head">
+                  <h3 class="feed-title">${c.title}</h3>
+                  ${renderConfidencePill(c.confidence, true)}
+                </div>
+                <div class="inset-block">${c.summary}</div>
+                <div class="feed-tags">
+                  <span class="feed-tag">${c.roleLabel}</span>
+                  <span class="feed-tag">${c.workflowName}</span>
+                </div>
+                <div class="feed-foot">
+                  <div class="feed-meta">
+                    <span>${c.author} · ${c.authorRole === 'manager' ? 'Manager' : 'Employee'}</span>
+                    <span>${c.timeSavedMinutes} min saved</span>
+                    <span>&#128172; ${c.commentCount}${c.hasManagerComment ? ' <span class="manager-dot" title="Manager commented"></span>' : ''}</span>
+                  </div>
+                </div>
+              </div>
+            </a>
+          `).join('');
+        } else {
+          cardsEl.innerHTML = cases.map((c) => {
+            const usedBy = countPromptUsage(data.peerCases, c.workflowId, c.prompt);
+            const promptParam = encodeURIComponent(c.prompt || '');
+            return `
+              <article class="feed-card feed-card--static">
+                <div class="vote-rail" aria-hidden="true">
+                  <span class="vote-rail__icon">&#9650;</span>
+                  <span>${c.upvotes || 0}</span>
+                  <span class="vote-rail__icon">&#9660;</span>
+                </div>
+                <div class="feed-body">
+                  <div class="feed-head">
+                    <h3 class="feed-title">${c.workflowName}</h3>
+                  </div>
+                  <div class="inset-block">&ldquo;${truncateText(c.prompt, 160)}&rdquo;</div>
+                  <div class="feed-foot">
+                    <div class="feed-meta">
+                      <span>${c.author} · ${c.authorRole === 'manager' ? 'Manager' : 'Employee'}</span>
+                      <span>Used by ${usedBy} ${usedBy === 1 ? 'person' : 'people'}</span>
+                    </div>
+                    <a class="feed-cta" href="workflow-detail.html?id=${c.workflowId}&prompt=${promptParam}">Try this prompt in a workflow &rarr;</a>
+                  </div>
+                </div>
+              </article>
+            `;
+          }).join('');
+        }
+      };
+
+      tabCases.addEventListener('click', () => {
+        view = 'cases';
+        tabCases.classList.add('active');
+        tabPrompts.classList.remove('active');
+        tabCases.setAttribute('aria-selected', 'true');
+        tabPrompts.setAttribute('aria-selected', 'false');
+        render();
+      });
+
+      tabPrompts.addEventListener('click', () => {
+        view = 'prompts';
+        tabPrompts.classList.add('active');
+        tabCases.classList.remove('active');
+        tabPrompts.setAttribute('aria-selected', 'true');
+        tabCases.setAttribute('aria-selected', 'false');
+        render();
+      });
+
+      document.querySelectorAll('.role-pill').forEach((pill) => {
+        pill.addEventListener('click', () => {
+          familyFilter = pill.dataset.family;
+          document.querySelectorAll('.role-pill').forEach((el) => el.classList.toggle('active', el === pill));
+          render();
+        });
+      });
+
+      render();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign in to Spark</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <style>
+    .login-bg {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--gray-50);
+      position: relative;
+      overflow: hidden;
+    }
+    /* Subtle red sparkle decoration in a corner (DESIGN_SYSTEM 5.12, optional). */
+    .login-sparkle {
+      position: absolute;
+      top: -40px;
+      right: -20px;
+      font-size: 288px;
+      line-height: 1;
+      color: var(--cibc-red);
+      opacity: 0.04;
+      user-select: none;
+      pointer-events: none;
+    }
+    .login-card {
+      width: 400px;
+      max-width: calc(100vw - 48px);
+      background: var(--white);
+      border-radius: var(--radius-hero);
+      box-shadow: var(--shadow-modal);
+      padding: var(--space-8);
+      position: relative;
+      z-index: 1;
+    }
+    .login-logo { margin: 0 0 var(--space-6) 0; }
+    .login-title {
+      font-size: 36px;
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--gray-900);
+      margin: 0;
+    }
+    .login-subtitle {
+      font-size: 16px;
+      color: var(--gray-500);
+      margin: var(--space-2) 0 0 0;
+    }
+    .login-field { margin-top: var(--space-5); }
+    .login-label {
+      display: block;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--gray-700);
+      margin-bottom: var(--space-2);
+    }
+    .login-input {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-button);
+      padding: 10px 14px;
+      font-size: 18px;
+      font-family: inherit;
+      background: var(--white);
+      color: var(--gray-900);
+      transition: border-color 0.15s ease;
+    }
+    .login-input::placeholder { color: var(--gray-400); }
+    .login-input:focus {
+      border-color: var(--cibc-red);
+      outline: 2px solid var(--cibc-red-light);
+      outline-offset: 0;
+    }
+    .login-input.has-error {
+      border-color: var(--danger);
+    }
+    .login-input.has-error:focus {
+      outline-color: var(--danger-bg);
+    }
+    .login-error {
+      color: var(--danger);
+      font-size: 16px;
+      margin: var(--space-3) 0 0 0;
+      display: none;
+    }
+    .login-error.visible { display: block; }
+    .login-submit {
+      width: 100%;
+      margin-top: var(--space-6);
+      background: var(--cibc-red);
+      color: var(--white);
+      padding: 12px 20px;
+      border: none;
+      border-radius: var(--radius-button);
+      font-weight: 500;
+      font-size: 18px;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+    .login-submit:hover { background: var(--cibc-red-dark); }
+    .login-submit:active { transform: scale(0.98); }
+    .login-helper {
+      color: var(--gray-400);
+      font-size: 15px;
+      line-height: 1.5;
+      margin: var(--space-5) 0 0 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="login-bg">
+    <span class="login-sparkle" aria-hidden="true">&#10022;</span>
+
+    <section class="login-card">
+      <div class="spark-logo login-logo" aria-hidden="false">
+        <img src="assets/logo.svg" alt="" width="20" height="20" class="spark-logo__mark" aria-hidden="true" />
+        <span class="spark-logo__text">Spark</span>
+      </div>
+      <h1 class="login-title">Sign in to Spark</h1>
+      <p class="login-subtitle">Use your CIBC email to continue.</p>
+
+      <form id="login-form" novalidate>
+        <div class="login-field">
+          <label class="login-label" for="email">Email</label>
+          <input class="login-input" id="email" name="email" type="email"
+                 autocomplete="email" placeholder="you@cibc.com" />
+        </div>
+
+        <div class="login-field">
+          <label class="login-label" for="password">Password</label>
+          <input class="login-input" id="password" name="password" type="password"
+                 autocomplete="current-password" placeholder="Enter any password" />
+        </div>
+
+        <p class="login-error" id="error" role="alert"></p>
+
+        <button class="login-submit" type="submit">Continue</button>
+      </form>
+
+      <p class="login-helper">For demo: try <strong>sarah.chen@cibc.com</strong> or <strong>david.kim@cibc.com</strong> (any password).</p>
+    </section>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    const form = document.getElementById('login-form');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const errorEl = document.getElementById('error');
+
+    function showError(message, fields) {
+      errorEl.textContent = message;
+      errorEl.classList.add('visible');
+      fields.forEach((field) => field.classList.add('has-error'));
+    }
+
+    function clearError() {
+      errorEl.classList.remove('visible');
+      emailInput.classList.remove('has-error');
+      passwordInput.classList.remove('has-error');
+    }
+
+    [emailInput, passwordInput].forEach((field) => {
+      field.addEventListener('input', clearError);
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      clearError();
+
+      const email = emailInput.value;
+      const password = passwordInput.value;
+
+      // Password is decorative (prototype) but must be non-empty.
+      if (!password.trim()) {
+        showError('Please enter any password to continue.', [passwordInput]);
+        passwordInput.focus();
+        return;
+      }
+
+      const result = login(email);
+      if (result.ok) {
+        window.location.href = 'index.html';
+      } else {
+        showError(result.error, [emailInput]);
+        emailInput.focus();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spark — Trust Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/ui-v2.css" />
+  <style>
+    .tc-page { padding: var(--space-10) 0 var(--space-12) 0; }
+    .tc-title { font-size: 42px; font-weight: 600; line-height: 1.25; margin: 0 0 var(--space-2) 0; }
+    .tc-lead { font-size: 24px; line-height: 1.5; color: var(--gray-500); margin: 0 0 var(--space-8) 0; max-width: 65ch; }
+
+    /* DESIGN_SYSTEM 4.3 — Ask 1.5fr / Look-up 1fr */
+    .tc-split {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: var(--space-8);
+      align-items: start;
+    }
+    .tc-col-title { font-size: 36px; font-weight: 600; margin: 0 0 var(--space-4) 0; }
+    .tc-section { margin-bottom: var(--space-6); }
+
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-card);
+      padding: var(--space-5);
+      box-shadow: var(--shadow-card);
+    }
+    .panel-title { font-size: 30px; font-weight: 600; margin: 0 0 var(--space-4) 0; }
+
+    /* Chatbot */
+    .chat-log {
+      min-height: 220px;
+      max-height: 320px;
+      overflow-y: auto;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-button);
+      padding: var(--space-4);
+      background: var(--gray-50);
+      margin-bottom: var(--space-3);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .chat-msg { max-width: 92%; font-size: 16px; line-height: 1.55; padding: 10px 14px; border-radius: 12px; }
+    .chat-msg--bot { background: var(--white); border: 1px solid var(--gray-200); color: var(--gray-900); align-self: flex-start; }
+    .chat-msg--user { background: var(--cibc-red-light); color: var(--gray-900); align-self: flex-end; }
+    .chat-msg--fallback { border-color: #FCD34D; background: var(--warning-bg); }
+    .chat-input-row { display: flex; gap: var(--space-2); margin-bottom: var(--space-3); }
+    .chat-input {
+      flex: 1;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-button);
+      padding: 10px 14px;
+      font-size: 18px;
+      font-family: inherit;
+    }
+    .chat-input:focus { outline: none; border-color: var(--cibc-red); box-shadow: 0 0 0 2px var(--cibc-red-light); }
+    .chat-suggestions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+    .chat-chip {
+      padding: 6px 12px;
+      border: 1px solid var(--gray-200);
+      border-radius: 999px;
+      background: var(--white);
+      font-size: 15px;
+      color: var(--gray-700);
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition-base);
+    }
+    .chat-chip:hover { border-color: var(--cibc-red); color: var(--cibc-red); }
+
+    .btn-primary, .btn-secondary, .btn-text {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border-radius: var(--radius-button);
+      font-size: 16px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition-base);
+      border: none;
+      text-decoration: none;
+    }
+    .btn-primary { background: var(--cibc-red); color: var(--white); }
+    .btn-primary:hover { background: var(--cibc-red-dark); }
+    .btn-secondary { background: var(--white); color: var(--gray-900); border: 1px solid var(--gray-200); }
+    .btn-secondary:hover { background: var(--gray-50); border-color: var(--gray-400); }
+    .btn-text { background: none; color: var(--cibc-red); padding-left: 0; padding-right: 0; }
+    .btn-text:hover { text-decoration: underline; }
+
+    .field-label { display: block; font-size: 16px; font-weight: 600; color: var(--gray-700); margin-bottom: var(--space-2); }
+    .text-input, .textarea, .select-input {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-button);
+      padding: 10px 14px;
+      font-size: 18px;
+      font-family: inherit;
+      margin-bottom: var(--space-4);
+      background: var(--white);
+    }
+    .textarea { min-height: 88px; resize: vertical; }
+    .text-input:focus, .textarea:focus, .select-input:focus {
+      outline: none;
+      border-color: var(--cibc-red);
+      box-shadow: 0 0 0 2px var(--cibc-red-light);
+    }
+    .checkbox-row { display: flex; align-items: flex-start; gap: var(--space-2); font-size: 16px; color: var(--gray-700); margin-bottom: var(--space-4); }
+    .checkbox-row input { margin-top: 3px; accent-color: var(--cibc-red); }
+
+    .success-banner { margin-bottom: var(--space-4); }
+
+    .question-item {
+      border-top: 1px solid var(--gray-200);
+      padding-top: var(--space-4);
+      margin-top: var(--space-4);
+    }
+    .question-item:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+    .question-item h4 { font-size: 18px; font-weight: 600; margin: 0 0 var(--space-1) 0; }
+    .question-meta { font-size: 15px; color: var(--gray-500); margin: 0 0 var(--space-2) 0; }
+
+    /* Boundaries */
+    .tab-row { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); flex-wrap: wrap; }
+    .tab-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--gray-200);
+      border-radius: 999px;
+      background: var(--white);
+      font-size: 16px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition-base);
+    }
+    .tab-btn.active { background: var(--cibc-red); border-color: var(--cibc-red); color: var(--white); }
+    .tab-btn:hover:not(.active) { background: var(--gray-50); }
+
+    .boundaries-table { width: 100%; border-collapse: collapse; font-size: 16px; }
+    .boundaries-table th {
+      text-align: left;
+      font-size: 15px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--gray-500);
+      padding: 0 0 var(--space-3) 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .boundaries-table td {
+      padding: var(--space-3) var(--space-2) var(--space-3) 0;
+      border-bottom: 1px solid var(--gray-100);
+      vertical-align: top;
+      color: var(--gray-900);
+      line-height: 1.5;
+    }
+    .boundaries-table tr.row-disabled td { color: var(--gray-400); }
+    .status-pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .status-pill--yes { background: var(--success-bg); color: var(--success); }
+    .status-pill--check { background: var(--warning-bg); color: #92400E; }
+    .status-pill--no { background: var(--gray-100); color: var(--gray-500); }
+    .wf-link { color: var(--cibc-red); font-weight: 500; text-decoration: none; font-size: 16px; }
+    .wf-link:hover { text-decoration: underline; }
+
+    /* FAQ accordion */
+    .faq-item { border-bottom: 1px solid var(--gray-200); }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-trigger {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) 0;
+      background: none;
+      border: none;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--gray-900);
+      text-align: left;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .faq-trigger:hover { color: var(--cibc-red); }
+    .faq-answer { display: none; font-size: 16px; line-height: 1.55; color: var(--gray-500); padding: 0 0 var(--space-4) 0; margin: 0; }
+    .faq-item.open .faq-answer { display: block; }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); }
+    .faq-chevron { transition: transform 0.15s ease; color: var(--gray-400); }
+
+    /* Director */
+    .endorsement {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-button);
+      padding: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+    .endorsement-text { font-size: 18px; line-height: 1.55; color: var(--gray-900); margin: 0 0 var(--space-3) 0; font-style: italic; }
+    .endorsement-sig { font-size: 16px; font-weight: 600; color: var(--gray-900); margin: 0; }
+    .endorsement-meta { font-size: 16px; color: var(--gray-500); margin: var(--space-1) 0 0 0; }
+
+    .ruling-card {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-button);
+      margin-bottom: var(--space-3);
+      overflow: hidden;
+    }
+    .ruling-trigger {
+      width: 100%;
+      text-align: left;
+      background: var(--white);
+      border: none;
+      padding: var(--space-4);
+      cursor: pointer;
+      font-family: inherit;
+      transition: var(--transition-base);
+    }
+    .ruling-trigger:hover { background: var(--gray-50); }
+    .ruling-q { font-size: 18px; font-weight: 600; color: var(--gray-900); margin: 0 0 var(--space-1) 0; }
+    .ruling-meta { font-size: 15px; color: var(--gray-500); margin: 0; }
+    .ruling-body {
+      display: none;
+      padding: 0 var(--space-4) var(--space-4);
+      border-top: 1px solid var(--gray-200);
+      background: var(--gray-50);
+    }
+    .ruling-card.open .ruling-body { display: block; }
+    .ruling-body p { font-size: 16px; line-height: 1.55; color: var(--gray-700); margin: var(--space-3) 0 0 0; }
+
+    .doc-list { list-style: none; padding: 0; margin: 0; }
+    .doc-list li { padding: var(--space-3) 0; border-bottom: 1px solid var(--gray-100); }
+    .doc-list li:last-child { border-bottom: none; }
+    .doc-list a { color: var(--cibc-red); font-weight: 500; text-decoration: none; font-size: 16px; }
+    .doc-list a:hover { text-decoration: underline; }
+    .doc-desc { display: block; font-size: 16px; color: var(--gray-500); margin-top: 4px; font-weight: 400; }
+
+    @media (max-width: 960px) {
+      .tc-split { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body class="ui-v2">
+  <div id="nav"></div>
+
+  <main class="spark-container tc-page">
+    <h1 class="tc-title">Trust Center</h1>
+    <p class="tc-lead">Check the rules, ask the chatbot, see the Director&apos;s guidance.</p>
+
+    <div class="tc-split">
+      <!-- Ask column (DESIGN_LOGIC 4.5.2) -->
+      <div class="tc-ask">
+        <h2 class="tc-col-title">Ask</h2>
+
+        <section class="panel tc-section" aria-labelledby="chatbot-heading">
+          <h3 class="panel-title" id="chatbot-heading">Policy chatbot</h3>
+          <div class="chat-log" id="chat-log" role="log" aria-live="polite">
+            <div class="chat-msg chat-msg--bot">Ask a question about what is and isn&apos;t sanctioned. I answer policy questions, not work drafting.</div>
+          </div>
+          <div class="chat-input-row">
+            <input class="chat-input" id="chat-input" type="text" placeholder="Type your question…" aria-label="Chatbot question" />
+            <button type="button" class="btn-primary" id="chat-send">Send</button>
+          </div>
+          <div class="chat-suggestions" id="chat-suggestions"></div>
+        </section>
+
+        <section class="panel tc-section" id="director" aria-labelledby="director-form-heading">
+          <h3 class="panel-title" id="director-form-heading">Contact the Director</h3>
+          <p style="font-size: 16px;color:var(--gray-500);margin:0 0 var(--space-4) 0;">When the chatbot can&apos;t answer with confidence, ask the Director instead.</p>
+          <div class="success-banner panel-hidden" id="director-success" role="status">
+            <span aria-hidden="true">&#10003;</span>
+            <span class="success-banner__text">Your question has been submitted. The Director will respond when reviewed.</span>
+          </div>
+          <form id="director-form">
+            <label class="field-label" for="q-title">Question title</label>
+            <input class="text-input" id="q-title" type="text" required />
+            <label class="field-label" for="q-desc">Description</label>
+            <textarea class="textarea" id="q-desc" required></textarea>
+            <label class="field-label" for="q-category">Related task category</label>
+            <select class="select-input" id="q-category">
+              <option value="Reconciliation">Reconciliation</option>
+              <option value="Email-Approval">Email-Approval</option>
+              <option value="Other">Other</option>
+            </select>
+            <label class="checkbox-row">
+              <input type="checkbox" id="q-publish" />
+              <span>It&apos;s OK to publish this question and its answer to the Director&apos;s rulings library.</span>
+            </label>
+            <button type="submit" class="btn-primary">Submit question</button>
+          </form>
+        </section>
+
+        <section class="panel tc-section" aria-labelledby="my-questions-heading">
+          <h3 class="panel-title" id="my-questions-heading">My questions</h3>
+          <div id="my-questions"></div>
+        </section>
+      </div>
+
+      <!-- Look up column -->
+      <div class="tc-lookup">
+        <h2 class="tc-col-title">Look up</h2>
+
+        <section class="panel tc-section" id="boundaries" aria-labelledby="boundaries-heading">
+          <h3 class="panel-title" id="boundaries-heading">Boundaries</h3>
+          <div class="tab-row" role="tablist">
+            <button type="button" class="tab-btn active" data-family="reconciliation">Reconciliation</button>
+            <button type="button" class="tab-btn" data-family="email-approval">Email &amp; Approvals</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="boundaries-table">
+              <thead>
+                <tr>
+                  <th>Task</th>
+                  <th>Allowed?</th>
+                  <th>Human review</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="boundaries-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel tc-section" aria-labelledby="faq-heading">
+          <h3 class="panel-title" id="faq-heading">FAQ</h3>
+          <div id="faq-list"></div>
+        </section>
+
+        <section class="panel tc-section" aria-labelledby="director-lib-heading">
+          <h3 class="panel-title" id="director-lib-heading">Director endorsement &amp; rulings</h3>
+          <div class="endorsement" id="endorsement"></div>
+          <div id="rulings-list"></div>
+        </section>
+
+        <section class="panel tc-section" aria-labelledby="docs-heading">
+          <h3 class="panel-title" id="docs-heading">Document resources</h3>
+          <ul class="doc-list" id="doc-list"></ul>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
+  <script>
+    const user = requireAuth();
+    if (user) {
+      mountChrome('trust-center');
+      const data = getMergedData();
+
+      const chatLog = document.getElementById('chat-log');
+      const chatInput = document.getElementById('chat-input');
+
+      const appendChat = (text, type) => {
+        const msg = document.createElement('div');
+        msg.className = `chat-msg chat-msg--${type}`;
+        msg.textContent = text;
+        chatLog.appendChild(msg);
+        chatLog.scrollTop = chatLog.scrollHeight;
+      };
+
+      const findChatbotAnswer = (input) => {
+        const normalized = input.trim().toLowerCase();
+        const match = data.chatbotDemo.find((item) => normalized === item.question.toLowerCase()
+          || normalized.includes(item.question.toLowerCase().slice(0, 24)));
+        return match ? match.answer : null;
+      };
+
+      const sendChat = () => {
+        const question = chatInput.value.trim();
+        if (!question) return;
+        appendChat(question, 'user');
+        chatInput.value = '';
+
+        const answer = findChatbotAnswer(question);
+        if (answer) {
+          appendChat(answer, 'bot');
+          return;
+        }
+
+        const fallback = document.createElement('div');
+        fallback.className = 'chat-msg chat-msg--bot chat-msg--fallback';
+        fallback.textContent = "I'm not sure about that. Would you like to ask the Director? ";
+        const link = document.createElement('button');
+        link.type = 'button';
+        link.className = 'btn-text';
+        link.textContent = 'Ask the Director instead';
+        link.addEventListener('click', () => {
+          document.getElementById('director').scrollIntoView({ behavior: 'smooth' });
+          document.getElementById('q-title').focus();
+        });
+        fallback.appendChild(link);
+        chatLog.appendChild(fallback);
+        chatLog.scrollTop = chatLog.scrollHeight;
+      };
+
+      document.getElementById('chat-suggestions').innerHTML = data.chatbotDemo.map((item) => `
+        <button type="button" class="chat-chip" data-question="${item.question.replace(/"/g, '&quot;')}">${item.question}</button>
+      `).join('');
+
+      document.getElementById('chat-suggestions').addEventListener('click', (event) => {
+        const chip = event.target.closest('.chat-chip');
+        if (!chip) return;
+        chatInput.value = chip.dataset.question;
+        sendChat();
+      });
+
+      document.getElementById('chat-send').addEventListener('click', sendChat);
+      chatInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') sendChat();
+      });
+
+      const renderMyQuestions = () => {
+        const questions = getDirectorQuestions();
+        const container = document.getElementById('my-questions');
+        if (!questions.length) {
+          container.innerHTML = renderEmptyState('You haven\u2019t asked the Director anything yet.', { icon: '&#128172;' });
+          return;
+        }
+        container.innerHTML = questions.slice().reverse().map((q) => `
+          <article class="question-item">
+            <h4>${q.title}</h4>
+            <p class="question-meta">${q.category} · ${q.status === 'pending' ? 'Pending' : 'Answered'} · ${formatDisplayDate(q.createdAt)}</p>
+            <p style="font-size: 16px;color:var(--gray-700);margin:0;">${q.description}</p>
+          </article>
+        `).join('');
+      };
+
+      document.getElementById('director-form').addEventListener('submit', (event) => {
+        event.preventDefault();
+        submitDirectorQuestion({
+          title: document.getElementById('q-title').value.trim(),
+          description: document.getElementById('q-desc').value.trim(),
+          category: document.getElementById('q-category').value,
+          publishOk: document.getElementById('q-publish').checked
+        });
+        document.getElementById('director-form').reset();
+        showSuccessBanner('Your question has been submitted. The Director will respond when reviewed.', {
+          targetId: 'director-success',
+          hideClass: 'panel-hidden'
+        });
+        renderMyQuestions();
+      });
+
+      renderMyQuestions();
+
+      const statusLabel = (status) => {
+        if (status === 'encouraged') return '<span class="status-pill status-pill--yes">&#10003; Yes</span>';
+        if (status === 'check-first') return '<span class="status-pill status-pill--check">&#9888; Check first</span>';
+        return '<span class="status-pill status-pill--no">&#10007; No</span>';
+      };
+
+      let activeFamily = 'reconciliation';
+      const renderBoundaries = () => {
+        const rows = data.boundaries.filter((row) => row.family === activeFamily);
+        document.getElementById('boundaries-body').innerHTML = rows.map((row) => {
+          const wfLink = row.workflowId
+            ? `<a class="wf-link" href="workflow-detail.html?id=${row.workflowId}">Open workflow</a>`
+            : '';
+          return `
+            <tr class="${row.status === 'not-allowed' ? 'row-disabled' : ''}">
+              <td>${row.task}${wfLink ? `<br>${wfLink}` : ''}</td>
+              <td>${statusLabel(row.status)}</td>
+              <td>${row.humanReview}</td>
+              <td>${row.notes}</td>
+            </tr>
+          `;
+        }).join('');
+      };
+
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          activeFamily = btn.dataset.family;
+          document.querySelectorAll('.tab-btn').forEach((el) => el.classList.toggle('active', el === btn));
+          renderBoundaries();
+        });
+      });
+      renderBoundaries();
+
+      document.getElementById('faq-list').innerHTML = data.faq.map((item) => `
+        <div class="faq-item">
+          <button type="button" class="faq-trigger" aria-expanded="false">
+            <span>${item.question}</span>
+            <span class="faq-chevron" aria-hidden="true">&#9662;</span>
+          </button>
+          <p class="faq-answer">${item.answer}</p>
+        </div>
+      `).join('');
+
+      document.getElementById('faq-list').addEventListener('click', (event) => {
+        const trigger = event.target.closest('.faq-trigger');
+        if (!trigger) return;
+        const item = trigger.closest('.faq-item');
+        const isOpen = item.classList.toggle('open');
+        trigger.setAttribute('aria-expanded', isOpen);
+      });
+
+      const endorsement = data.directorEndorsement;
+      document.getElementById('endorsement').innerHTML = `
+        <p class="endorsement-text">&ldquo;${endorsement.text}&rdquo;</p>
+        <p class="endorsement-sig">${endorsement.name}</p>
+        <p class="endorsement-meta">${endorsement.title} · Last updated ${formatDisplayDate(endorsement.lastUpdated)}</p>
+      `;
+
+      document.getElementById('rulings-list').innerHTML = data.rulings.length
+        ? data.rulings.map((ruling) => `
+            <article class="ruling-card">
+              <button type="button" class="ruling-trigger" aria-expanded="false">
+                <p class="ruling-q">${ruling.question}</p>
+                <p class="ruling-meta">Anonymous asker · ${ruling.decidedBy} · ${formatDisplayDate(ruling.decidedAt)}</p>
+              </button>
+              <div class="ruling-body">
+                <p><strong>Ruling:</strong> ${ruling.ruling}</p>
+              </div>
+            </article>
+          `).join('')
+        : renderEmptyState('No rulings have been published yet.', { icon: '&#128220;' });
+
+      document.getElementById('rulings-list').addEventListener('click', (event) => {
+        const trigger = event.target.closest('.ruling-trigger');
+        if (!trigger) return;
+        const card = trigger.closest('.ruling-card');
+        const isOpen = card.classList.toggle('open');
+        trigger.setAttribute('aria-expanded', isOpen);
+      });
+
+      document.getElementById('doc-list').innerHTML = data.documentResources.map((doc) => `
+        <li>
+          <span style="color:var(--gray-900);font-weight:500;font-size: 16px;">${doc.title}</span>
+          <span class="doc-desc">${doc.description}</span>
+        </li>
+      `).join('');
+
+      if (window.location.hash === '#director') {
+        document.getElementById('director').scrollIntoView({ behavior: 'smooth' });
+      }
+      if (window.location.hash === '#boundaries') {
+        document.getElementById('boundaries').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  </script>
+</body>
+</html>

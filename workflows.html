@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spark — Workflows</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/workflows.css" />
+</head>
+<body class="wf-hub">
+  <div id="nav"></div>
+
+  <main class="spark-container wf-hub-page">
+    <nav class="wf-hub-breadcrumbs" aria-label="Breadcrumb">
+      <a href="index.html" aria-label="Home">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </a>
+      <span class="wf-hub-breadcrumbs__sep" aria-hidden="true">&gt;</span>
+      <span class="wf-hub-breadcrumbs__current">Workflows</span>
+    </nav>
+
+    <section class="wf-hub-section" aria-labelledby="role-heading">
+      <h2 class="wf-hub-section__title" id="role-heading">What kind of work are you doing?</h2>
+      <div class="wf-role-grid" id="role-grid" role="tablist"></div>
+    </section>
+
+    <section class="wf-hub-section" aria-labelledby="workflows-heading">
+      <h2 class="wf-hub-section__title" id="workflows-heading">Your workflows</h2>
+      <div class="wf-workflow-grid" id="family-workflows"></div>
+    </section>
+
+    <section class="wf-hub-section" aria-labelledby="prompts-heading">
+      <h2 class="wf-hub-section__title" id="prompts-heading">Most-used prompts this month</h2>
+      <div class="wf-prompt-list" id="prompt-list"></div>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/components.js"></script>
+  <script>
+    const user = requireAuth();
+    if (user) {
+      mountChrome('workflows');
+
+      const data = getMergedData();
+      let activeFamily = 'reconciliation';
+
+      const iconUser = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+      const iconClipboard = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>';
+      const iconTrend = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>';
+      const iconThumb = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 10v12M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>';
+
+      const PRODUCTIVITY_BOOST = {
+        'discrepancy-explanation': 18,
+        'audit-summary': 22,
+        'approval-email': 12
+      };
+
+      const ROLE_COPY = {
+        reconciliation: 'Discrepancy explanations, audit summaries, and reconciliation notes.',
+        'email-approval': 'Approval emails and decision summaries for high-value items.'
+      };
+
+      const PRIORITY_LABELS = { high: 'High', medium: 'Medium', low: 'Low' };
+
+      const renderPriorityPill = (level) => `
+        <span class="wf-priority wf-priority--${level}">
+          <span class="wf-priority__dot" aria-hidden="true"></span>
+          ${PRIORITY_LABELS[level] || level}
+        </span>
+      `;
+
+      const renderWorkflowCard = (workflow) => {
+        const roleLabel = getRoleLabelForFamily(workflow.family);
+        const productivity = PRODUCTIVITY_BOOST[workflow.id] || 15;
+        return `
+          <a class="wf-workflow-card" href="workflow-detail.html?id=${workflow.id}">
+            <div class="wf-workflow-card__top">
+              <span class="wf-workflow-card__tag">${roleLabel}</span>
+              ${renderPriorityPill(workflow.mockConfidence)}
+            </div>
+            <h3>${workflow.name}</h3>
+            <p class="wf-workflow-card__summary">${workflow.summary}</p>
+            <div class="wf-workflow-card__metrics">
+              <span>Used by ${workflow.usedByCount} people</span>
+              <span>~${workflow.estTimeSavedMinutes} min saved</span>
+              <span class="wf-productivity">+${productivity}% productivity ${iconTrend}</span>
+            </div>
+            <span class="wf-workflow-card__cta">Continue &rarr;</span>
+          </a>
+        `;
+      };
+
+      const roleGrid = document.getElementById('role-grid');
+      roleGrid.innerHTML = WORKFLOW_ROLES.map((role) => {
+        const isActive = role.family === activeFamily;
+        const icon = role.family === 'reconciliation' ? iconUser : iconClipboard;
+        return `
+          <button type="button" class="wf-role-card${isActive ? ' active' : ''}"
+                  data-family="${role.family}" role="tab" aria-selected="${isActive}">
+            <div class="wf-role-card__icon" aria-hidden="true">${icon}</div>
+            <div>
+              <h2>${role.label}</h2>
+              <p>${ROLE_COPY[role.family] || ''}</p>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      const familyEl = document.getElementById('family-workflows');
+      const promptListEl = document.getElementById('prompt-list');
+
+      const renderFamilyWorkflows = () => {
+        const filtered = data.workflows.filter((wf) => wf.family === activeFamily);
+        familyEl.innerHTML = filtered.map(renderWorkflowCard).join('');
+      };
+
+      const buildPromptList = () => {
+        const seen = new Set();
+        const prompts = [];
+
+        [...data.peerCases]
+          .sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0))
+          .forEach((peerCase) => {
+            const key = `${peerCase.workflowId}::${(peerCase.prompt || '').trim().toLowerCase()}`;
+            if (seen.has(key)) return;
+            seen.add(key);
+
+            const workflow = getWorkflowById(data.workflows, peerCase.workflowId);
+            const usageCount = countPromptUsage(data.peerCases, peerCase.workflowId, peerCase.prompt);
+            const usedBy = workflow ? workflow.usedByCount : usageCount;
+
+            prompts.push({
+              prompt: peerCase.prompt,
+              author: peerCase.author,
+              upvotes: peerCase.upvotes || 0,
+              usedBy,
+              workflowId: peerCase.workflowId
+            });
+          });
+
+        promptListEl.innerHTML = prompts.slice(0, 4).map((item) => {
+          const href = `workflow-detail.html?id=${item.workflowId}&prompt=${encodeURIComponent(item.prompt)}`;
+          return `
+            <article class="wf-prompt-row">
+              <span class="wf-prompt-row__quote" aria-hidden="true">&ldquo;</span>
+              <p class="wf-prompt-row__text">${item.prompt}</p>
+              <div class="wf-prompt-row__meta">
+                <span class="wf-prompt-row__meta-item">by ${item.author}</span>
+                <span class="wf-prompt-row__meta-item">${iconThumb} ${item.upvotes}</span>
+                <span class="wf-prompt-row__meta-item">used by ${item.usedBy}</span>
+              </div>
+              <a class="wf-prompt-row__use" href="${href}">Use &rarr;</a>
+            </article>
+          `;
+        }).join('');
+      };
+
+      roleGrid.addEventListener('click', (event) => {
+        const tile = event.target.closest('.wf-role-card');
+        if (!tile) return;
+        activeFamily = tile.dataset.family;
+        roleGrid.querySelectorAll('.wf-role-card').forEach((el) => {
+          const isActive = el.dataset.family === activeFamily;
+          el.classList.toggle('active', isActive);
+          el.setAttribute('aria-selected', isActive);
+        });
+        renderFamilyWorkflows();
+      });
+
+      renderFamilyWorkflows();
+      buildPromptList();
+    }
+  </script>
+</body>
+</html>

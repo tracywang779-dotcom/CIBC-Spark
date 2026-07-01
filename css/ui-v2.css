@@ -1,0 +1,77 @@
+/* UI v2 — shared module page polish (workflows, explore, trust, pledge) */
+
+.ui-v2 {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 70% 50% at 50% -20%, rgba(200, 16, 46, 0.04), transparent 50%),
+    linear-gradient(180deg, var(--landing-bg) 0%, var(--landing-bg-accent) 100%);
+}
+
+.ui-v2 .page,
+.ui-v2 .explore-page,
+.ui-v2 .tc-page,
+.ui-v2 .profile-page {
+  padding-top: var(--space-10);
+}
+
+.ui-v2 .page-title,
+.ui-v2 .explore-title,
+.ui-v2 .tc-title,
+.ui-v2 .profile-title {
+  letter-spacing: -0.02em;
+}
+
+.ui-v2 .page-lead,
+.ui-v2 .explore-lead,
+.ui-v2 .tc-lead,
+.ui-v2 .profile-subtitle {
+  color: var(--gray-600);
+}
+
+.ui-v2 .card,
+.ui-v2 .explore-panel,
+.ui-v2 .panel,
+.ui-v2 .workflow-card,
+.ui-v2 .explore-card,
+.ui-v2 .role-tile,
+.ui-v2 .feed-card,
+.ui-v2 .profile-panel,
+.ui-v2 .win-card {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(6px);
+}
+
+.ui-v2 .role-tile.active {
+  background: rgba(254, 226, 229, 0.65);
+  border-color: var(--cibc-red);
+}
+
+.ui-v2 .explore-back,
+.ui-v2 .back-link {
+  color: var(--cibc-red);
+  font-weight: 500;
+}
+
+.ui-v2 .section-title {
+  letter-spacing: -0.01em;
+}
+
+.ui-v2 .tc-split {
+  gap: var(--space-10);
+}
+
+.ui-v2 .dept-tab {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.ui-v2 .dept-tab.active {
+  box-shadow: 0 4px 16px var(--landing-sphere-glow);
+}
+
+.ui-v2 .card--accent {
+  border-top-color: var(--cibc-red);
+  background: rgba(255, 255, 255, 0.92);
+}

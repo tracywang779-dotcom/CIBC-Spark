@@ -1,0 +1,239 @@
+# Cursor Behaviour Rules — Spark Prototype
+
+You are working on **Spark**, a clickable HTML prototype for an MSc capstone delivered to CIBC. These rules govern how you work in this repo. They are non-negotiable.
+
+---
+
+## 0. First Action of Every New Chat
+
+When a new chat opens in this repo:
+
+1. **Read `SPEC.md` first**, top to bottom. It is the entry point.
+2. **Read `SPEC.md` Section 10 (Progress Tracker)** to know what's been done and what's next.
+3. **Read this file (`.cursorrules`) second.**
+4. Only then ask the user what to do — or, if the user has already given a task, locate the relevant section in `DESIGN_LOGIC.md` and `DESIGN_SYSTEM.md` before writing any code.
+
+Do NOT re-read all four documents every turn. After the first read in a session, refer back to specific sections by name only when needed.
+
+---
+
+## 1. Document Authority (Conflict Resolution)
+
+When two documents disagree, follow this order (highest wins):
+
+1. **`DESIGN_LOGIC.md`** — product truth (the "why")
+2. **`DESIGN_SYSTEM.md`** — visual truth (the "what it looks like")
+3. **`SPEC.md`** — engineering truth (the "how it's built")
+4. **`.cursorrules`** — work rules (the "how to behave")
+
+If you spot a conflict, **do not silently pick one**. Stop, flag the conflict to the user, and ask which wins. Then note the resolution in `SPEC.md` Section 10 (Known Issues).
+
+---
+
+## 2. Tech Stack — Locked
+
+**Use:**
+- HTML5
+- Tailwind CSS via CDN (`<script src="https://cdn.tailwindcss.com"></script>`)
+- Vanilla JavaScript
+- localStorage
+- Google Fonts CDN (Inter)
+
+**Do NOT use:**
+- npm / package.json / node_modules / any build tooling
+- React, Vue, Svelte, Alpine.js, jQuery, or any framework
+- Vite, Webpack, Parcel, esbuild, PostCSS configs
+- TypeScript (plain JS only)
+- Routing libraries (use plain `<a href>`)
+- Any external JS library beyond Tailwind CDN
+- Any backend, API call, `fetch()` to remote endpoints
+- CSS-in-JS, styled-components, or any runtime styling library
+
+If you think the task genuinely requires something outside this list, **stop and ask the user** before adding it.
+
+---
+
+## 3. File Organization
+
+The file structure is defined in `SPEC.md` Section 4. **Follow it exactly.** Do not invent new folders, do not rename pages, do not split pages into multiple files without asking.
+
+When creating a new page:
+- One HTML file per surface.
+- Inline `<style>` only if the rule is one-off; otherwise add to `css/tokens.css` or use Tailwind classes.
+- Inline `<script>` at the bottom of `<body>` for page-specific logic; shared logic goes in `js/*.js`.
+- Every page (except `login.html`) must:
+  1. Import the shared CSS and JS files in `<head>`.
+  2. Run the auth guard at the top of its inline `<script>` (see SPEC.md Section 6.2).
+  3. Render the nav via `renderNav()` from `js/components.js`.
+
+---
+
+## 4. Data Access Rules
+
+- **All seeded data lives in `js/data.js`** as a single `SPARK_DATA` constant. Never duplicate seeded values across files.
+- **All runtime data lives in localStorage under key `spark_runtime`.** Never write to other localStorage keys.
+- **Always read merged data via `getMergedData()` from `js/storage.js`.** Never read `SPARK_DATA` directly from a page.
+- **Skill Lab activity is NEVER stored.** Anywhere. Not in localStorage, not in memory between page loads. This is a Design Logic constraint (4.4.5).
+- When adding a new piece of seeded data, place it in the correct namespace inside `SPARK_DATA` (see SPEC.md Section 5.3 for the shape).
+
+---
+
+## 5. The Eleven Sanctioned Cross-Surface Links
+
+Only the cross-surface links listed in `SPEC.md` Section 8 (which mirrors `DESIGN_LOGIC.md` Section 3.6) are allowed. Do not add other navigation between modules without asking. Examples of links you must NOT add:
+
+- ❌ Trust Center → Pledge (not sanctioned)
+- ❌ My Profile → any module deep-link other than display-only calendar
+- ❌ Workflows → My Profile
+- ❌ Any "back to dashboard" shortcut from inside Explore sub-modules
+- ❌ Any link surfacing Pledge in the top nav
+
+If a user asks for a link that isn't sanctioned, point them to Section 3.6 of Design Logic and confirm before adding it.
+
+---
+
+## 6. Role-Conditional UI
+
+The ONLY three places where employee vs. manager differs (per SPEC.md Section 6.4):
+
+1. Landing Pledge card CTA copy
+2. Pledge page Edit button (manager + own department only)
+3. Peer Cases manager badge on manager-authored comments
+
+Do NOT add other role-conditional UI. In particular:
+- ❌ No "Team activity" view for managers
+- ❌ No manager dashboard
+- ❌ No manager-only nav items
+- ❌ No approval queues anywhere
+- ❌ No surveillance / monitoring views
+
+Managers are employees with one extra capability. That's the whole story.
+
+---
+
+## 7. Design System Compliance
+
+When styling anything:
+
+- **Use the CSS variables from `css/tokens.css`** (e.g., `var(--cibc-red)`), not hardcoded hex.
+- **Use the type scale, spacing scale, and component specs** from `DESIGN_SYSTEM.md`. Don't invent new sizes.
+- **Confidence colors (`--success`, `--warning`, `--danger`) are RESERVED** for the Confidence Indicator. Do not use them for general UI accents.
+- **CIBC red (`--cibc-red` `#C8102E`) and Confidence danger red (`--danger` `#DC2626`) are different colors.** Never substitute one for the other.
+- **No pure black** for text. Use `--gray-900`.
+- **Card default radius is 12px, button radius is 8px.** Don't mix.
+
+---
+
+## 8. Mock Behaviour Conventions
+
+These small touches are what make the prototype feel real. Implement them when you build the relevant page (full list in `SPEC.md` Section 7):
+
+- "Run with AI" button → 1-second spinner, then reveal output. Do not render instantly.
+- Confidence mapping is fixed per workflow ID (see SPEC.md Section 7).
+- Low-confidence workflows: "Mark as verified" stays disabled until output text has been modified.
+- Verification checklist length scales with confidence: High = 2, Medium = 4, Low = 5+ with mandatory edit.
+- Submission confirmation page does not auto-redirect.
+- Chatbot: hardcoded answers to 4 demo questions, fallback for everything else.
+- Skill Lab and Learning Partners are static look-only pages. Cards exist; clicks do nothing (or show a "Coming soon" toast — pick one approach and use it consistently across both pages).
+
+---
+
+## 9. Code Style
+
+- **HTML**: semantic tags (`<header>`, `<main>`, `<nav>`, `<section>`, `<article>`). Use `aria-label` on icon-only buttons.
+- **CSS**: prefer Tailwind utility classes. Drop into `css/tokens.css` only for design tokens and truly cross-cutting styles (e.g., `.confidence-pill--high`).
+- **JavaScript**:
+  - Plain ES6+ (arrow functions, `const`/`let`, template literals, destructuring).
+  - No classes unless genuinely needed.
+  - Functions are small and named. No 100-line inline handlers.
+  - No abbreviations in names (`getCurrentUser`, not `getCurUsr`).
+  - Comments only where the why is non-obvious. Don't comment what the code already says.
+- **No console.log left in shipped code.** OK during development; remove before marking a task done.
+
+---
+
+## 10. What "Done" Means
+
+A page or feature is **done** when:
+
+1. It renders correctly with seeded data.
+2. It handles its declared empty state (per Design Logic 6.x state specs).
+3. All cross-surface links from it go to the right place.
+4. It looks like the design system intends (colors, spacing, type, components).
+5. It works after a page reload (data persists where it should).
+6. The corresponding checkbox in `SPEC.md` Section 10 is checked.
+
+**Update `SPEC.md` Section 10 as you complete items.** This is how new chats know what's left.
+
+---
+
+## 11. When to Ask vs. When to Decide
+
+**Ask the user before:**
+- Introducing any new technology (library, tool, file format)
+- Adding a cross-surface link not in the sanctioned eleven
+- Changing the file structure in `SPEC.md` Section 4
+- Resolving a conflict between Design Logic and Design System
+- Adding role-conditional UI beyond the three sanctioned cases
+- Spending effort on anything in `SPEC.md` Section 11 ("Out of Scope")
+
+**Decide on your own:**
+- Exact mock copy text (within the spirit of Design Logic)
+- Exact Tailwind class combinations to achieve the design system spec
+- Internal function names and small refactors
+- Empty-state copy wording (keep it warm and short)
+- Hover-state colors within the documented palette
+
+When in doubt, ask. A 30-second clarification beats a 30-minute rebuild.
+
+---
+
+## 12. Things That Will Get the Project in Trouble
+
+Hard "do not do" list — these have all been considered and rejected in Design Logic:
+
+- ❌ A Manager Hub or manager dashboard
+- ❌ A Director login or Director-facing UI
+- ❌ An approval queue on Peer Cases
+- ❌ A leaderboard anywhere in the product
+- ❌ A left sidebar
+- ❌ A top nav on the landing page
+- ❌ Pledge in the top nav
+- ❌ Inline pledge editing (must be a dedicated `/pledge/edit` page)
+- ❌ Real AI calls / real Confidence computation
+- ❌ Public visibility of one user's progression to another
+- ❌ Streaks or gamification on Workflows (only Skill Lab is gamified)
+- ❌ Cross-user comparisons or rankings anywhere
+- ❌ Storing Skill Lab activity in any form
+- ❌ Auto-saving on input (Pledge editor is explicit Save / Cancel)
+
+If a task implies any of the above, stop and re-read the relevant Design Logic section, then confirm with the user.
+
+---
+
+## 13. New-Chat Recovery Protocol
+
+If a chat dies mid-task and a new chat picks up:
+
+1. Read `SPEC.md` Section 10 to find the last-checked item.
+2. Look at the file timestamps in the repo to confirm which files are recent.
+3. Open the relevant Design Logic + Design System sections for the next unchecked item.
+4. **Ask the user one question** to confirm the next task before writing code: *"Last completed: [X]. Next on the list: [Y]. Should I proceed with Y, or is there something else?"*
+
+This protocol means a dead chat costs at most one message of context reload.
+
+---
+
+## 14. Tone
+
+This is a financial-institution prototype for a graduate capstone. Default tone in any UI copy you write:
+
+- Professional, calm, warm
+- No emoji in body copy except where Design System explicitly uses them (Confidence Indicator, hint bar 💡, streak 🔥)
+- No marketing language ("blazing fast," "revolutionary," "AI-powered")
+- No exclamation marks except in genuine confirmations ("Your case has been published.")
+- Plain English. If a sentence could be shorter, shorten it.
+
+---
+
+*End of `.cursorrules` — v1.0. Update only when SPEC.md or Design Logic changes substantively.*
