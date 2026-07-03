@@ -17,18 +17,7 @@
       position: relative;
       overflow: hidden;
     }
-    /* Subtle red sparkle decoration in a corner (DESIGN_SYSTEM 5.12, optional). */
-    .login-sparkle {
-      position: absolute;
-      top: -40px;
-      right: -20px;
-      font-size: 288px;
-      line-height: 1;
-      color: var(--cibc-red);
-      opacity: 0.04;
-      user-select: none;
-      pointer-events: none;
-    }
+    /* Subtle red sparkle decoration — replaced by shared spark-watermarks */
     .login-card {
       width: 400px;
       max-width: calc(100vw - 48px);
@@ -116,9 +105,12 @@
   </style>
 </head>
 <body>
+  <div class="spark-watermarks" aria-hidden="true">
+    <img src="assets/logo-outline.svg" alt="" class="spark-watermarks__mark spark-watermarks__mark--1" />
+    <img src="assets/logo-outline.svg" alt="" class="spark-watermarks__mark spark-watermarks__mark--2" />
+    <img src="assets/logo-outline.svg" alt="" class="spark-watermarks__mark spark-watermarks__mark--3" />
+  </div>
   <main class="login-bg">
-    <span class="login-sparkle" aria-hidden="true">&#10022;</span>
-
     <section class="login-card">
       <div class="spark-logo login-logo" aria-hidden="false">
         <img src="assets/logo.svg" alt="" width="20" height="20" class="spark-logo__mark" aria-hidden="true" />

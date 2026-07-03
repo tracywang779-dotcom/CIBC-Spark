@@ -17,8 +17,8 @@
       background: var(--cibc-red);
     }
     .faq-snippet { font-size: 16px; line-height: 1.55; color: var(--gray-700); margin: 0; }
-    .sidebar-case-title { font-size: 24px; font-weight: 600; margin: 0 0 var(--space-2) 0; color: var(--white); }
-    .sidebar-case-meta { font-size: 16px; color: rgba(255,255,255,0.75); margin: 0; }
+    .sidebar-case-title { font-size: var(--text-h3); font-weight: 600; margin: 0 0 var(--space-2) 0; color: var(--white); }
+    .sidebar-case-meta { font-size: var(--text-sm); color: rgba(255,255,255,0.75); margin: 0; }
   </style>
 </head>
 <body class="ui-v2">
@@ -183,7 +183,7 @@
                       <span>${c.author} · ${c.authorRole === 'manager' ? 'Manager' : 'Employee'}</span>
                       <span>Used by ${usedBy} ${usedBy === 1 ? 'person' : 'people'}</span>
                     </div>
-                    <a class="feed-cta" href="workflow-detail.html?id=${c.workflowId}&prompt=${promptParam}">Try this prompt in a workflow &rarr;</a>
+                    <a class="feed-cta" href="workflows.html?id=${c.workflowId}&prompt=${promptParam}">Try this prompt in a workflow &rarr;</a>
                   </div>
                 </div>
               </article>

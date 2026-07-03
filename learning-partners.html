@@ -7,43 +7,20 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/ui-v2.css" />
   <style>
-    .panel-icon { font-size: 30px; }
-    .topic-input-row {
-      display: flex;
-      gap: var(--space-2);
-      align-items: stretch;
+    .pod-dept {
+      display: inline-block;
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: var(--cibc-red);
+      margin-bottom: var(--space-2);
     }
-    .topic-input {
-      flex: 1;
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-button);
-      padding: 10px 14px;
-      font-size: 16px;
-      font-family: inherit;
-    }
-    .topic-input:focus {
-      outline: none;
-      border-color: var(--cibc-red);
-      box-shadow: 0 0 0 2px var(--cibc-red-light);
-    }
-    .topic-use {
-      padding: 10px 16px;
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-button);
-      background: var(--white);
-      font-size: 16px;
-      font-weight: 500;
-      font-family: inherit;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .topic-use:hover { background: var(--gray-50); border-color: var(--gray-400); }
     .pod-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-top: var(--space-3); }
     .btn-secondary, .btn-text {
       padding: 8px 14px;
       border-radius: var(--radius-button);
-      font-size: 16px;
+      font-size: var(--text-sm);
       font-weight: 500;
       font-family: inherit;
       cursor: pointer;
@@ -60,10 +37,38 @@
       border: 1px solid var(--gray-200);
       color: var(--gray-900);
     }
-    .btn-text:hover { background: var(--gray-50); border-color: var(--gray-400); }
+    .btn-text:hover { border-color: var(--cibc-red); color: var(--cibc-red); }
+    .pod-create {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      border: 2px dashed var(--gray-200);
+      border-radius: var(--radius-card);
+      text-align: center;
+      padding: var(--panel-pad);
+      color: var(--gray-500);
+      cursor: default;
+      background: var(--white);
+    }
+    .pod-create__icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-h3);
+      margin-bottom: var(--space-2);
+      color: var(--gray-400);
+    }
+    .pod-create__title { font-size: var(--text-body); font-weight: 600; color: var(--gray-700); margin: 0 0 var(--space-1); }
+    .pod-create__desc { font-size: var(--text-sm); margin: 0; line-height: 1.4; }
   </style>
 </head>
-<body>
+<body class="ui-v2">
   <div id="nav"></div>
 
   <main class="spark-container explore-page">
@@ -74,18 +79,7 @@
       <p class="explore-lead">Interest-based PODs where curious teammates learn together. Join full membership or observe quietly.</p>
     </header>
 
-    <div class="explore-split explore-split--equal">
-      <section class="explore-panel" aria-label="Topic selection">
-        <div class="chip-cloud" id="topic-chips"></div>
-        <div class="topic-input-row">
-          <input class="topic-input" id="custom-topic" type="text" aria-label="Custom topic" />
-        </div>
-      </section>
-
-      <section class="explore-panel" aria-label="POD directory">
-        <div class="mini-grid" id="pod-list"></div>
-      </section>
-    </div>
+    <div class="mini-grid" id="pod-list" aria-label="POD directory"></div>
   </main>
 
   <div id="footer"></div>
@@ -100,25 +94,11 @@
       mountChrome('explore');
       const data = getMergedData();
 
-      document.getElementById('topic-chips').innerHTML = data.boundaries.map((row) => `
-        <button type="button" class="topic-chip" data-task="${row.task}">${row.task}</button>
-      `).join('');
-
-      document.getElementById('topic-chips').addEventListener('click', (event) => {
-        const chip = event.target.closest('.topic-chip');
-        if (!chip) return;
-        document.querySelectorAll('.topic-chip').forEach((el) => el.classList.toggle('active', el === chip));
-        document.getElementById('custom-topic').value = chip.dataset.task;
-      });
-
-      const showPodToast = () => showToast('Coming soon in v2 — POD scheduling is look-only in this prototype.');
-
-      document.getElementById('custom-topic').addEventListener('keydown', (event) => {
-        if (event.key === 'Enter') showPodToast();
-      });
-
-      document.getElementById('pod-list').innerHTML = data.pods.map((pod) => `
+      const showPodToast = () => showToast('POD scheduling is look-only in this prototype.');
+      document.getElementById('pod-list').innerHTML = [
+        ...data.pods.map((pod) => `
         <article class="mini-card">
+          <span class="pod-dept">${pod.department || 'Cross-team'}</span>
           <h3>${pod.name}</h3>
           <p>${pod.summary}</p>
           <div class="avatar-stack" aria-hidden="true">
@@ -130,7 +110,13 @@
             <button type="button" class="btn-text pod-action">Join as observer</button>
           </div>
         </article>
-      `).join('');
+      `),
+        `<div class="pod-create" aria-label="Create new POD placeholder">
+          <span class="pod-create__icon" aria-hidden="true">+</span>
+          <p class="pod-create__title">Create new POD</p>
+          <p class="pod-create__desc">Start an interest group around a topic you want to learn together.</p>
+        </div>`
+      ].join('');
 
       document.getElementById('pod-list').addEventListener('click', (event) => {
         if (event.target.closest('.pod-action')) showPodToast();

@@ -7,9 +7,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/ui-v2.css" />
   <style>
-    .page { padding: var(--space-10) 0 var(--space-12) 0; }
-    .page-title { font-size: 42px; font-weight: 600; line-height: 1.25; margin: 0 0 var(--space-2) 0; }
+    .page { padding: var(--space-8) 0 var(--space-10); }
+    .page-title { font-size: var(--text-h1); font-weight: 600; line-height: 1.25; margin: 0 0 var(--space-2) 0; }
     .page-sub { font-size: 16px; color: var(--gray-500); margin: 0 0 var(--space-2) 0; }
     .new-warning {
       display: none;
@@ -147,16 +148,16 @@
     .preview { margin-top: var(--space-6); }
     .preview[hidden] { display: none; }
     .preview-eyebrow { font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--gray-500); margin: 0 0 var(--space-3) 0; }
-    .manager-name { font-size: 30px; font-weight: 600; color: var(--gray-900); margin: 0; }
-    .manager-title { font-size: 16px; color: var(--gray-500); margin: var(--space-1) 0 0 0; }
-    .pledge-statement { font-size: 24px; line-height: 1.55; color: var(--gray-900); margin: var(--space-5) 0; max-width: 65ch; }
+    .manager-name { font-size: var(--text-h3); font-weight: 600; color: var(--gray-900); margin: 0; }
+    .manager-title { font-size: var(--text-sm); color: var(--gray-500); margin: var(--space-1) 0 0 0; }
+    .pledge-statement { font-size: var(--text-body-lg); line-height: 1.55; color: var(--gray-900); margin: var(--space-5) 0; max-width: 65ch; }
     .task-group { margin-top: var(--space-5); }
     .task-group h3 { font-size: 16px; font-weight: 600; color: var(--gray-700); margin: 0 0 var(--space-2) 0; }
     .task-list { display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; padding: 0; margin: 0; }
     .task-pill { display: inline-block; padding: 4px 10px; background: var(--gray-100); color: var(--gray-700); border-radius: 6px; font-size: 15px; font-weight: 500; }
   </style>
 </head>
-<body>
+<body class="ui-v2">
   <div id="nav"></div>
 
   <main class="spark-container page">
@@ -223,7 +224,7 @@
       <div class="actions">
         <button class="btn-secondary" id="preview-btn" type="button">Preview as employees will see it</button>
         <button class="btn-primary" id="save-btn" type="button">Save</button>
-        <a class="btn-secondary" id="cancel-btn" href="pledge.html">Cancel</a>
+        <a class="btn-secondary" id="cancel-btn" href="trust-center.html#pledge">Cancel</a>
         <span class="save-hint" id="save-hint">Make at least one edit to the AI suggestion to save.</span>
       </div>
     </section>
@@ -240,7 +241,7 @@
     if (user) {
       if (user.role !== 'manager') {
         // Employees cannot edit (DESIGN_LOGIC 4.2.5).
-        window.location.href = 'pledge.html';
+        window.location.href = 'trust-center.html#pledge';
       } else {
         mountChrome(null);
         document.getElementById('footer').innerHTML = renderFooter();
@@ -453,7 +454,7 @@
             lastUpdated: new Date().toISOString().slice(0, 10)
           };
           updateRuntime({ pledgeOverrides: overrides });
-          window.location.href = 'pledge.html?updated=1';
+          window.location.href = 'trust-center.html?updated=1#pledge';
         });
 
         function escapeHtml(str) {

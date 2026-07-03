@@ -7,35 +7,36 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/ui-v2.css" />
   <style>
-    .page { padding: var(--space-10) 0 var(--space-12) 0; }
-    .page-title { font-size: 42px; font-weight: 600; line-height: 1.25; margin: 0 0 var(--space-4) 0; }
-    .back-link { display: inline-block; font-size: 16px; color: var(--cibc-red); font-weight: 500; text-decoration: none; margin-bottom: var(--space-4); }
+    .module-page { padding: var(--space-8) 0 var(--space-10); }
+    .page-title { font-size: var(--text-h1); font-weight: 600; line-height: 1.25; margin: 0 0 var(--space-4) 0; }
+    .back-link { display: inline-block; font-size: var(--text-sm); color: var(--cibc-red); font-weight: 500; text-decoration: none; margin-bottom: var(--space-4); }
     .back-link:hover { text-decoration: underline; }
 
-    .tags { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-bottom: var(--space-5); }
+    .tags { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; margin-bottom: var(--module-gap); }
     .tag {
       display: inline-block;
       padding: 4px 10px;
       background: var(--gray-100);
       color: var(--gray-700);
       border-radius: 6px;
-      font-size: 15px;
+      font-size: var(--text-xs);
       font-weight: 500;
     }
-    .meta { font-size: 16px; color: var(--gray-500); margin: 0 0 var(--space-6) 0; }
+    .meta { font-size: var(--text-sm); color: var(--gray-500); margin: 0 0 var(--module-gap) 0; }
 
     .card {
       background: var(--white);
       border: 1px solid var(--gray-200);
       border-radius: var(--radius-card);
-      padding: var(--space-6);
+      padding: var(--panel-pad);
       box-shadow: var(--shadow-card);
-      margin-bottom: var(--space-5);
+      margin-bottom: var(--module-gap);
     }
-    .card-title { font-size: 30px; font-weight: 600; margin: 0 0 var(--space-4) 0; }
+    .card-title { font-size: var(--text-h3); font-weight: 600; margin: 0 0 var(--space-4) 0; }
     .field-label {
-      font-size: 15px;
+      font-size: var(--text-xs);
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.03em;
@@ -43,24 +44,24 @@
       margin: 0 0 var(--space-1) 0;
     }
     .field-value {
-      font-size: 18px;
+      font-size: var(--text-body);
       line-height: 1.55;
       color: var(--gray-900);
       white-space: pre-wrap;
       margin: 0 0 var(--space-5) 0;
     }
     .field-value:last-child { margin-bottom: 0; }
-    .checklist { margin: 0; padding-left: 1.2rem; font-size: 18px; color: var(--gray-900); }
+    .checklist { margin: 0; padding-left: 1.2rem; font-size: var(--text-body); color: var(--gray-900); }
 
-    .actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-bottom: var(--space-5); }
+    .actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-bottom: var(--module-gap); }
     .btn-upvote, .btn-primary, .btn-secondary {
       display: inline-flex;
       align-items: center;
       gap: var(--space-2);
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: var(--radius-button);
       font-weight: 500;
-      font-size: 18px;
+      font-size: var(--text-sm);
       font-family: inherit;
       cursor: pointer;
       transition: var(--transition-base);
@@ -74,16 +75,16 @@
     .btn-primary { background: var(--cibc-red); color: var(--white); border-color: var(--cibc-red); }
     .btn-primary:hover { background: var(--cibc-red-dark); }
 
-    .comment-list { list-style: none; padding: 0; margin: 0 0 var(--space-5) 0; display: flex; flex-direction: column; gap: var(--space-4); }
+    .comment-list { list-style: none; padding: 0; margin: 0 0 var(--module-gap) 0; display: flex; flex-direction: column; gap: var(--space-4); }
     .comment {
       border-top: 1px solid var(--gray-200);
       padding-top: var(--space-4);
     }
     .comment-head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
-    .comment-author { font-size: 16px; font-weight: 600; color: var(--gray-900); }
-    .comment-role { font-size: 16px; color: var(--gray-500); }
-    .comment-time { font-size: 15px; color: var(--gray-400); margin-left: auto; }
-    .comment-text { font-size: 18px; line-height: 1.55; color: var(--gray-900); margin: 0; }
+    .comment-author { font-size: var(--text-sm); font-weight: 600; color: var(--gray-900); }
+    .comment-role { font-size: var(--text-sm); color: var(--gray-500); }
+    .comment-time { font-size: var(--text-xs); color: var(--gray-400); margin-left: auto; }
+    .comment-text { font-size: var(--text-body); line-height: 1.55; color: var(--gray-900); margin: 0; }
 
     .comment-form textarea {
       width: 100%;
@@ -91,7 +92,7 @@
       border: 1px solid var(--gray-200);
       border-radius: var(--radius-button);
       padding: 10px 14px;
-      font-size: 18px;
+      font-size: var(--text-body);
       font-family: inherit;
       min-height: 88px;
       resize: vertical;
@@ -126,7 +127,7 @@
     .empty-state { text-align: center; padding: var(--space-10); color: var(--gray-500); }
   </style>
 </head>
-<body>
+<body class="ui-v2">
   <div id="nav"></div>
 
   <main class="spark-container page" id="main"></main>
@@ -210,7 +211,7 @@
             <button type="button" class="btn-upvote" id="btn-upvote" ${upvoted ? 'disabled' : ''} aria-label="Upvote this case">
               &#128077; <span id="upvote-count">${peerCase.upvotes || 0}</span>
             </button>
-            <a class="btn-primary" href="workflow-detail.html?id=${peerCase.workflowId}&prompt=${promptParam}">Try this in a workflow</a>
+            <a class="btn-primary" href="workflows.html?id=${peerCase.workflowId}&prompt=${promptParam}">Try this in a workflow</a>
           </div>
 
           <section class="card">

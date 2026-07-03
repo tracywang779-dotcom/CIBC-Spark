@@ -1,9 +1,8 @@
 /* Spark — shared partials (SPEC.md Section 4, DESIGN_SYSTEM 5.3).
    Skeleton versions: structurally correct, lightly styled. Phase 2 refines look. */
 
-/* Top navigation bar. Present on every page EXCEPT login.html and index.html
-   (Landing). Links: Home / Trust Center / Explore / Workflows + avatar -> profile.
-   activeKey marks the current link: 'home' | 'trust-center' | 'explore' | 'workflows'. */
+/* Top navigation bar. Present on every page EXCEPT login.html.
+   Links: Home / Trust Center / Explore / Workflows + avatar dropdown (logout only). */
 function renderSparkLogo(href = 'index.html', extraClass = '') {
   const className = extraClass ? `spark-logo ${extraClass}` : 'spark-logo';
   return `<a href="${href}" class="${className}">
@@ -12,10 +11,30 @@ function renderSparkLogo(href = 'index.html', extraClass = '') {
   </a>`;
 }
 
-function renderNav(activeKey) {
+function renderNavAvatarDropdown() {
   const user = getCurrentUser();
   const initials = user ? user.avatarInitials : '?';
 
+  return `
+    <div class="spark-nav__avatar-wrap">
+      <button type="button" class="spark-nav__avatar" id="nav-avatar-btn" aria-expanded="false" aria-haspopup="true" aria-label="Account menu">${initials}</button>
+      <div class="spark-nav__dropdown panel-hidden" id="nav-avatar-menu" role="menu">
+        <button type="button" class="spark-nav__logout" id="nav-logout" role="menuitem">Log out</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderLandingHeroBar() {
+  return `
+    <header class="landing-hero-bar">
+      ${renderSparkLogo('index.html', 'spark-logo--on-dark')}
+      ${renderNavAvatarDropdown()}
+    </header>
+  `;
+}
+
+function renderNav(activeKey) {
   const links = [
     { key: 'home', label: 'Home', href: 'index.html' },
     { key: 'trust-center', label: 'Trust Center', href: 'trust-center.html' },
@@ -36,10 +55,47 @@ function renderNav(activeKey) {
       <div class="spark-container spark-nav__inner">
         ${renderSparkLogo('index.html')}
         <div class="spark-nav__links">${linksHtml}</div>
-        <a href="profile.html" class="spark-nav__avatar" aria-label="My Profile" title="My Profile">${initials}</a>
+        <div class="spark-nav__actions">
+          <button type="button" class="spark-nav__whats-new" id="nav-whats-new">What&rsquo;s new</button>
+          ${renderNavAvatarDropdown()}
+        </div>
       </div>
     </nav>
   `;
+}
+
+function initNavAvatarDropdown() {
+  const btn = document.getElementById('nav-avatar-btn');
+  const menu = document.getElementById('nav-avatar-menu');
+  if (!btn || !menu) return;
+
+  btn.addEventListener('click', (event) => {
+    event.stopPropagation();
+    const isHidden = menu.classList.contains('panel-hidden');
+    menu.classList.toggle('panel-hidden', !isHidden);
+    btn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+  });
+
+  const logoutBtn = document.getElementById('nav-logout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      logout();
+      window.location.href = 'login.html';
+    });
+  }
+
+  const whatsNewBtn = document.getElementById('nav-whats-new');
+  if (whatsNewBtn) {
+    whatsNewBtn.addEventListener('click', () => {
+      showToast('What\u2019s new is display-only in this prototype.');
+    });
+  }
+
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('.spark-nav__avatar-wrap')) return;
+    menu.classList.add('panel-hidden');
+    btn.setAttribute('aria-expanded', 'false');
+  });
 }
 
 function renderFooter() {
@@ -52,11 +108,35 @@ function renderFooter() {
   `;
 }
 
+function renderSparkWatermarks() {
+  return `
+    <div class="spark-watermarks" aria-hidden="true">
+      <img src="assets/logo-outline.svg" alt="" class="spark-watermarks__mark spark-watermarks__mark--1" />
+      <img src="assets/logo-outline.svg" alt="" class="spark-watermarks__mark spark-watermarks__mark--2" />
+      <img src="assets/logo-outline.svg" alt="" class="spark-watermarks__mark spark-watermarks__mark--3" />
+    </div>
+  `;
+}
+
+function mountSparkWatermarks() {
+  if (document.querySelector('.spark-watermarks')) return;
+  const template = document.createElement('template');
+  template.innerHTML = renderSparkWatermarks().trim();
+  document.body.insertBefore(template.content.firstChild, document.body.firstChild);
+}
+
 /* Mounts the nav into an element with id="nav" and footer into id="footer",
-   if present. Pages call mountChrome('home') after the auth guard. */
-function mountChrome(activeKey) {
+   if present. Pages call mountChrome('home') after the auth guard.
+   Pass { skipNav: true } on landing (home has no top nav). */
+function mountChrome(activeKey, options = {}) {
+  mountSparkWatermarks();
   const navEl = document.getElementById('nav');
-  if (navEl) navEl.innerHTML = renderNav(activeKey);
+  if (navEl && !options.skipNav) {
+    navEl.innerHTML = renderNav(activeKey);
+    initNavAvatarDropdown();
+  } else if (navEl) {
+    navEl.innerHTML = '';
+  }
   const footerEl = document.getElementById('footer');
   if (footerEl) footerEl.innerHTML = renderFooter();
 }
@@ -272,20 +352,40 @@ function getProfileStats(user) {
   };
 }
 
+const JOURNEY_THRESHOLDS = [0, 3, 12, 25, 40];
+
 function getProgressionView(user, stats) {
-  const stageId = user.progressionStage || 'beginner';
-  const stageIndex = Math.max(0, PROGRESSION_STAGES.findIndex((stage) => stage.id === stageId));
+  const totalPoints = getTotalJourneyPoints(user);
+  let stageIndex = 0;
+  for (let i = JOURNEY_THRESHOLDS.length - 2; i >= 0; i -= 1) {
+    if (totalPoints >= JOURNEY_THRESHOLDS[i]) {
+      stageIndex = i;
+      break;
+    }
+  }
+
   const stage = PROGRESSION_STAGES[stageIndex] || PROGRESSION_STAGES[0];
-  const [min, max] = PROGRESSION_THRESHOLDS[stage.id] || [0, 1];
-  const span = Math.max(max - min, 1);
-  const intra = Math.min(1, Math.max(0, (stats.tasksCompleted - min) / span));
+  const nextThreshold = JOURNEY_THRESHOLDS[stageIndex + 1] || JOURNEY_THRESHOLDS[JOURNEY_THRESHOLDS.length - 1];
+  const currentThreshold = JOURNEY_THRESHOLDS[stageIndex];
+  const span = Math.max(nextThreshold - currentThreshold, 1);
+  const intra = Math.min(1, Math.max(0, (totalPoints - currentThreshold) / span));
   const progressPercent = Math.min(100, ((stageIndex + intra) / 3) * 100);
   const nextStage = PROGRESSION_STAGES[stageIndex + 1];
+  const runsNeeded = nextStage ? Math.max(0, Math.ceil(nextThreshold - totalPoints)) : 0;
   const note = nextStage
-    ? `You\u2019re at ${stage.label}. ${stage.framing}`
+    ? `${runsNeeded} more run${runsNeeded === 1 ? '' : 's'} to reach ${nextStage.label}`
     : stage.framing;
 
-  return { stage, stageIndex, progressPercent, note, stages: PROGRESSION_STAGES };
+  return {
+    stage,
+    stageIndex,
+    progressPercent,
+    note,
+    stages: PROGRESSION_STAGES,
+    totalPoints,
+    runsNeeded,
+    nextStage
+  };
 }
 
 const CHAMPION_CROWN_SVG = '<svg class="champion-reward-icon champion-reward-icon--crown" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 19h20v2H2v-2zm2.2-2h15.6l-2.4-7.2-3.2 3.6L12 8.5 9.8 13.4 6.6 9.8 4.2 17z"/></svg>';
@@ -295,7 +395,8 @@ const CHAMPION_TROPHY_HERO_SVG = '<svg class="champion-reward-hero__icon" width=
 const CHAMPION_REWARD_BULLET_SVG = '<svg class="champion-reward-popover__bullet-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 3h8v2a4 4 0 01-8 0V3zm-3 3h14a5 5 0 01-4.9 5.1A6.5 6.5 0 0012 18.5 6.5 6.5 0 005.9 11.1 5 5 0 015 6zm2 13h10l-1 3H8l-1-3z"/></svg>';
 
 function getChampionRewardState(user) {
-  const unlocked = (user.progressionStage || 'beginner') === 'ai-champion';
+  const totalPoints = getTotalJourneyPoints(user);
+  const unlocked = totalPoints >= 25 || user.progressionStage === 'ai-champion';
   return { unlocked };
 }
 
@@ -384,15 +485,15 @@ function getWhatsNextSuggestions(user, data, dismissedIds) {
       label: 'Workflow to try',
       title: untriedWorkflow.name,
       description: untriedWorkflow.summary,
-      href: `workflow-detail.html?id=${untriedWorkflow.id}`
+      href: `workflows.html?id=${untriedWorkflow.id}`
     });
   }
 
   suggestions.push({
     id: 'skill-prompt-basics',
     label: 'Skill Lab exercise',
-    title: 'Prompt tuning basics',
-    description: 'Rewrite a vague prompt into something verifiable.',
+    title: (SPARK_DATA.skillLabExercises[0] || {}).title || 'Prompt tuning basics',
+    description: (SPARK_DATA.skillLabExercises[0] || {}).description || 'Rewrite a vague prompt into something verifiable.',
     href: 'skill-lab.html'
   });
 
@@ -446,4 +547,207 @@ function dismissProfileSuggestion(id) {
   const next = [...dismissed, id];
   sessionStorage.setItem('spark_profile_dismissed', JSON.stringify(next));
   return next;
+}
+
+const SKILL_EXERCISE_ICONS = {
+  chat: '&#128172;',
+  book: '&#128214;',
+  check: '&#9989;',
+  shield: '&#128737;'
+};
+
+function renderHeroProgression(user, progression, rewardCopy) {
+  const labels = progression.stages.map((stage, index) => {
+    const isActive = index === progression.stageIndex;
+    if (stage.id === 'ai-champion') {
+      return renderChampionStageLabel(stage, isActive, user);
+    }
+    const active = isActive ? ' active' : '';
+    return `<span class="progression-stage${active}">${stage.label}</span>`;
+  }).join('');
+
+  return `
+    <section class="landing-hero" aria-labelledby="landing-headline">
+      <p class="landing-welcome" id="welcome">Welcome back.</p>
+      <h1 class="landing-headline" id="landing-headline">Your <span class="landing-accent">AI Journey</span></h1>
+      <p class="landing-subline">Here&rsquo;s where you are and what&rsquo;s next.</p>
+      <div class="landing-progression">
+        <div class="progression-labels">${labels}</div>
+        <div class="progression-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(progression.progressPercent)}" aria-label="Progression toward ${progression.stage.label}">
+          <div class="progression-fill" style="width:${progression.progressPercent}%"></div>
+          <span class="progression-marker" style="left:${progression.progressPercent}%"></span>
+        </div>
+        <p class="progression-note">${progression.note}</p>
+        ${renderChampionRewardPopover(user, rewardCopy)}
+      </div>
+    </section>
+  `;
+}
+
+const SKILL_ICON_TONE = {
+  chat: 'blue',
+  book: 'purple',
+  check: 'green',
+  shield: 'yellow'
+};
+
+function renderSkillLabPreview(exercises, completedIds) {
+  const items = exercises.slice(0, 4).map((exercise) => {
+    const done = completedIds.includes(exercise.id);
+    const icon = SKILL_EXERCISE_ICONS[exercise.icon] || '&#127919;';
+    const tone = SKILL_ICON_TONE[exercise.icon] || 'blue';
+    return `
+      <a class="skill-preview-row${done ? ' skill-preview-row--done' : ''}" href="skill-lab.html?exercise=${exercise.id}">
+        <span class="skill-preview-row__icon skill-preview-row__icon--${tone}" aria-hidden="true">${icon}</span>
+        <span class="skill-preview-row__body">
+          <span class="skill-preview-row__title">${exercise.title}</span>
+          <span class="skill-preview-row__meta">${exercise.duration} &middot; ${exercise.category}</span>
+        </span>
+        <span class="skill-preview-row__reward">${done ? 'Done' : `${exercise.rewardLabel} &rarr;`}</span>
+      </a>
+    `;
+  }).join('');
+
+  return `
+    <section class="landing-card landing-card--skill" aria-labelledby="skill-preview-heading">
+      <div class="landing-card__head">
+        <div>
+          <h2 class="landing-card__title" id="skill-preview-heading">Exercises in Skill Lab:</h2>
+          <p class="landing-card__subtitle">Personalized. Each under 10 minutes.</p>
+        </div>
+        <a class="landing-card__link" href="skill-lab.html">View all &gt;</a>
+      </div>
+      <div class="skill-preview-list">${items}</div>
+    </section>
+  `;
+}
+
+function renderDashboardWins(stats, dayStreak) {
+  return `
+    <section class="landing-card landing-card--wins" aria-labelledby="wins-heading">
+      <h2 class="landing-wins-title" id="wins-heading">
+        <span class="landing-wins-title__icon" aria-hidden="true">&#127942;</span>
+        Your wins
+      </h2>
+      <div class="landing-wins-grid">
+        <div class="landing-win">
+          <span class="landing-win__icon" aria-hidden="true">&#128337;</span>
+          <p class="landing-win__value">${formatTimeSaved(stats.timeSavedMinutes)}</p>
+          <p class="landing-win__label">Time saved</p>
+        </div>
+        <div class="landing-win">
+          <span class="landing-win__icon" aria-hidden="true">&#9989;</span>
+          <p class="landing-win__value">${stats.tasksCompleted}</p>
+          <p class="landing-win__label">Tasks completed</p>
+        </div>
+        <div class="landing-win">
+          <span class="landing-win__icon" aria-hidden="true">&#128196;</span>
+          <p class="landing-win__value">${stats.promptsContributed}</p>
+          <p class="landing-win__label">Prompts shared</p>
+        </div>
+        <div class="landing-win">
+          <span class="landing-win__icon" aria-hidden="true">&#128293;</span>
+          <p class="landing-win__value">${dayStreak} &#128293;</p>
+          <p class="landing-win__label">Day streak</p>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function formatEventShort(iso) {
+  const date = new Date(`${iso}T12:00:00`);
+  return date.toLocaleDateString('en-CA', { month: 'short', day: 'numeric' });
+}
+
+function renderUpcomingEvents(events) {
+  const sorted = [...events].sort((a, b) => new Date(a.date) - new Date(b.date));
+  const items = sorted.slice(0, 3).map((event) => `
+    <div class="upcoming-row">
+      <span class="upcoming-row__icon" aria-hidden="true">&#128197;</span>
+      <span class="upcoming-row__title">${event.title}</span>
+      <span class="upcoming-row__date">${formatEventShort(event.date)}</span>
+    </div>
+  `).join('');
+
+  return `
+    <section class="landing-card landing-card--upcoming" aria-labelledby="upcoming-heading">
+      <div class="landing-card__head">
+        <h2 class="landing-card__title" id="upcoming-heading">Upcoming</h2>
+        <span class="landing-card__link">Calendar</span>
+      </div>
+      <div class="upcoming-list">${items || '<p class="landing-muted">No upcoming events.</p>'}</div>
+    </section>
+  `;
+}
+
+function renderLandingNavShortcuts() {
+  return `
+    <section class="landing-shortcuts" aria-label="Main navigation">
+      <a href="workflows.html" class="landing-shortcut">
+        <span class="landing-shortcut__icon landing-shortcut__icon--workflows" aria-hidden="true">&#9881;</span>
+        <h2 class="landing-shortcut__title">Workflows</h2>
+        <p class="landing-shortcut__desc">Guided runs with confidence checks and verification</p>
+      </a>
+      <a href="explore.html" class="landing-shortcut">
+        <span class="landing-shortcut__icon landing-shortcut__icon--explore" aria-hidden="true">&#128269;</span>
+        <h2 class="landing-shortcut__title">Explore</h2>
+        <p class="landing-shortcut__desc">Peer cases, Skill Lab, ideas, and learning PODs</p>
+      </a>
+      <a href="trust-center.html" class="landing-shortcut">
+        <span class="landing-shortcut__icon landing-shortcut__icon--trust" aria-hidden="true">&#128737;</span>
+        <h2 class="landing-shortcut__title">Trust Center</h2>
+        <p class="landing-shortcut__desc">Pledges, boundaries, policy chatbot, and resources</p>
+      </a>
+    </section>
+  `;
+}
+
+function bindChampionPopoverHandlers() {
+  let championPopoverOpen = false;
+  const panel = document.getElementById('progression-panel') || document.querySelector('.landing-progression');
+
+  const closeChampionPopover = () => {
+    const popover = document.getElementById('champion-reward-popover');
+    const trigger = document.getElementById('champion-reward-trigger');
+    if (!popover || !trigger) return;
+    popover.classList.add('panel-hidden');
+    trigger.setAttribute('aria-expanded', 'false');
+    championPopoverOpen = false;
+  };
+
+  const openChampionPopover = () => {
+    const popover = document.getElementById('champion-reward-popover');
+    const trigger = document.getElementById('champion-reward-trigger');
+    if (!popover || !trigger) return;
+    popover.classList.remove('panel-hidden');
+    trigger.setAttribute('aria-expanded', 'true');
+    championPopoverOpen = true;
+  };
+
+  if (!panel) return;
+
+  panel.addEventListener('click', (event) => {
+    const celebrateBtn = event.target.closest('#champion-reward-celebrate');
+    if (celebrateBtn) {
+      event.stopPropagation();
+      launchChampionFireworks(celebrateBtn);
+      return;
+    }
+    if (event.target.closest('#champion-reward-trigger')) {
+      event.stopPropagation();
+      if (championPopoverOpen) closeChampionPopover();
+      else openChampionPopover();
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!championPopoverOpen) return;
+    if (event.target.closest('#champion-reward-popover') || event.target.closest('#champion-reward-trigger')) return;
+    closeChampionPopover();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && championPopoverOpen) closeChampionPopover();
+  });
 }

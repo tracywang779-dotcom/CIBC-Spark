@@ -13,7 +13,9 @@ const DEFAULT_RUNTIME = {
   upvoteDeltas: {},
   upvotedCases: [],
   joinedPods: [],
-  directorQuestions: []
+  directorQuestions: [],
+  journeyPoints: 0,
+  skillLabCompleted: []
 };
 
 function getRuntime() {
@@ -98,6 +100,66 @@ function submitDirectorQuestion(question) {
 
 function getDirectorQuestions() {
   return getRuntime().directorQuestions || [];
+}
+
+function getStageBaselinePoints(user) {
+  const baseline = {
+    beginner: 1,
+    'daily-user': 9,
+    'ai-expert': 18,
+    'ai-champion': 32
+  };
+  return baseline[user.progressionStage] || 0;
+}
+
+function getTotalJourneyPoints(user) {
+  const runtime = getRuntime();
+  return getStageBaselinePoints(user) + (runtime.journeyPoints || 0);
+}
+
+function addJourneyPoints(amount) {
+  if (!amount) return getRuntime();
+  const runtime = getRuntime();
+  return updateRuntime({ journeyPoints: (runtime.journeyPoints || 0) + amount });
+}
+
+function isSkillLabExerciseComplete(exerciseId) {
+  return (getRuntime().skillLabCompleted || []).includes(exerciseId);
+}
+
+function completeSkillLabExercise(exerciseId) {
+  const runtime = getRuntime();
+  const completed = runtime.skillLabCompleted || [];
+  if (completed.includes(exerciseId)) return false;
+
+  const exercise = SPARK_DATA.skillLabExercises.find((item) => item.id === exerciseId);
+  const points = exercise ? exercise.points : 1;
+
+  updateRuntime({
+    skillLabCompleted: [...completed, exerciseId],
+    journeyPoints: (runtime.journeyPoints || 0) + points
+  });
+  return true;
+}
+
+function getRecentWorkflowRuns(user, limit = 3) {
+  const runtime = getRuntime();
+  const fromRuntime = (runtime.newPeerCases || [])
+    .filter((item) => item.author === user.name)
+    .map((item) => ({
+      name: item.workflowName,
+      date: item.createdAt,
+      confidence: item.confidence,
+      timeSavedMinutes: item.timeSavedMinutes || 0
+    }));
+
+  const seeded = [
+    { name: 'Discrepancy Explanation', date: '2026-07-01', confidence: 'high', timeSavedMinutes: 22 },
+    { name: 'Email summary', date: '2026-06-25', confidence: 'medium', timeSavedMinutes: 18 },
+    { name: 'Approval draft', date: '2026-06-23', confidence: 'high', timeSavedMinutes: 30 }
+  ];
+
+  return [...fromRuntime, ...seeded].slice(0, limit);
 }
 
 /* Returns seeded data with runtime overrides applied. Read-only snapshot —

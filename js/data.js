@@ -287,13 +287,101 @@ const SPARK_DATA = {
     }
   ],
 
+  skillLabExercises: [
+    {
+      id: 'ex-001',
+      title: 'Rewrite a client email with clearer tone',
+      description: 'Practice adjusting tone without changing the facts.',
+      duration: '5 min',
+      category: 'Communication',
+      icon: 'chat',
+      rewardLabel: '+1 run',
+      points: 1
+    },
+    {
+      id: 'ex-002',
+      title: 'Extract key figures from a 10-K excerpt',
+      description: 'Pull the numbers that matter from a dense filing.',
+      duration: '7 min',
+      category: 'Analysis',
+      icon: 'book',
+      rewardLabel: '+ extend streak',
+      points: 2
+    },
+    {
+      id: 'ex-003',
+      title: 'Turn meeting notes into an action list',
+      description: 'Convert messy notes into clear next steps.',
+      duration: '4 min',
+      category: 'Productivity',
+      icon: 'check',
+      rewardLabel: '+ engagement',
+      points: 1
+    },
+    {
+      id: 'ex-004',
+      title: 'Compare two vendor security summaries',
+      description: 'Spot differences in risk language across vendors.',
+      duration: '8 min',
+      category: 'Risk',
+      icon: 'shield',
+      rewardLabel: '+ contribute',
+      points: 2
+    },
+    {
+      id: 'ex-005',
+      title: 'Spot the shaky output',
+      description: 'Practice recognizing when an AI summary overstates certainty.',
+      duration: '5 min',
+      category: 'Verification',
+      icon: 'check',
+      rewardLabel: '+1 run',
+      points: 1
+    },
+    {
+      id: 'ex-006',
+      title: 'Prompt tuning basics',
+      description: 'Rewrite a vague prompt into something verifiable.',
+      duration: '5 min',
+      category: 'Communication',
+      icon: 'chat',
+      rewardLabel: '+ engagement',
+      points: 1
+    }
+  ],
+
   pods: [
     {
       id: 'pod-001',
       name: 'Reconciliation AI Practice',
+      department: 'Operational',
       cadence: 'Weekly, Thursdays 2pm',
       members: 6,
       summary: 'A small group sharing prompts and reviewing AI-assisted reconciliation work.'
+    },
+    {
+      id: 'pod-002',
+      name: 'AI for Audit Prep',
+      department: 'Risk',
+      cadence: 'Bi-weekly, Wednesdays 10am',
+      members: 8,
+      summary: 'Risk analysts comparing AI-assisted audit prep workflows and verification habits.'
+    },
+    {
+      id: 'pod-003',
+      name: 'Finance Prompt Circle',
+      department: 'Finance',
+      cadence: 'Monthly, first Tuesday 3pm',
+      members: 5,
+      summary: 'Finance teammates sharing vetted prompts for summaries and compliance checks.'
+    },
+    {
+      id: 'pod-004',
+      name: 'Copilot Power Users',
+      department: 'Technology',
+      cadence: 'Weekly, Fridays 11am',
+      members: 12,
+      summary: 'Tech team exploring safe Copilot patterns for internal documentation and code review.'
     }
   ],
 
@@ -423,7 +511,7 @@ const SPARK_DATA = {
 
   championReward: {
     title: 'AI Champion Achievement',
-    digital: 'A private AI Champion trophy on your profile \u2014 visible only to you.',
+    digital: 'A private AI Champion trophy on your home dashboard \u2014 visible only to you.',
     material: [
       'Recognition gift from the AI adoption program',
       'Invitation to the quarterly Champion circle',
@@ -435,24 +523,24 @@ const SPARK_DATA = {
   events: [
     {
       id: 'event-001',
-      date: '2026-07-02',
-      title: 'Reconciliation AI Practice POD',
+      date: '2026-07-03',
+      title: 'POD: AI for Audit Prep',
       type: 'pod',
       format: 'virtual',
-      description: 'Weekly prompt-sharing session with the Reconciliation AI Practice POD.'
+      description: 'Bi-weekly Risk POD session on AI-assisted audit preparation.'
     },
     {
       id: 'event-002',
-      date: '2026-07-10',
-      title: 'AI in Operations Workshop',
+      date: '2026-07-08',
+      title: 'Microsoft Copilot Workshop',
       type: 'workshop',
-      format: 'in-person',
-      description: 'Organization-run session on safe AI use in operational workflows.'
+      format: 'virtual',
+      description: 'Organization-run session on safe Copilot use in operational workflows.'
     },
     {
       id: 'event-003',
       date: '2026-07-15',
-      title: 'Quarterly Ideas Review',
+      title: 'Quarterly Idea Review',
       type: 'ideas',
       format: 'virtual',
       description: 'Review of top-voted Ideas Lab submissions across the organization.'

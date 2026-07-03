@@ -8,74 +8,40 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/ui-v2.css" />
-  <style>
-    .page { padding: var(--space-10) 0 var(--space-12) 0; }
-    .page-title { font-size: 42px; font-weight: 600; line-height: 1.25; margin: 0 0 var(--space-2) 0; }
-    .page-lead { font-size: 24px; line-height: 1.5; color: var(--gray-500); margin: 0 0 var(--space-8) 0; max-width: 65ch; }
-
-    .explore-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-    }
-    .explore-card {
-      display: block;
-      background: var(--white);
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-card);
-      padding: var(--space-6);
-      box-shadow: var(--shadow-card);
-      transition: var(--transition-base);
-      text-decoration: none;
-      color: inherit;
-      min-height: 180px;
-    }
-    .explore-card:hover {
-      border-color: var(--gray-400);
-      box-shadow: var(--shadow-card-hover);
-      transform: translateY(-1px);
-    }
-    .explore-icon { font-size: 36px; line-height: 1; }
-    .explore-name { font-size: 30px; font-weight: 500; color: var(--gray-900); margin: var(--space-3) 0 var(--space-2) 0; }
-    .explore-desc { font-size: 16px; line-height: 1.55; color: var(--gray-500); margin: 0 0 var(--space-4) 0; }
-    .explore-cta { color: var(--cibc-red); font-weight: 500; font-size: 16px; }
-
-    @media (max-width: 960px) {
-      .explore-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-  </style>
 </head>
 <body class="ui-v2">
   <div id="nav"></div>
 
-  <main class="spark-container page">
-    <h1 class="page-title">Explore</h1>
-    <p class="page-lead">Real cases, real practice, real ideas, real people. This is how AI becomes part of how we work.</p>
+  <main class="spark-container explore-page">
+    <header class="explore-head">
+      <h1 class="explore-title">Explore</h1>
+      <p class="explore-lead">Your resource inventory for peer learning and skill improvement — tutoring and training that turn curiosity into habit.</p>
+    </header>
 
-    <section class="explore-grid" aria-label="Explore sub-modules">
-      <a href="peer-cases.html" class="explore-card">
-        <div class="explore-icon" aria-hidden="true">&#128196;</div>
-        <h2 class="explore-name">Peer Cases</h2>
-        <p class="explore-desc">Browse real AI-assisted runs from teammates. Read, comment, upvote, reuse prompts.</p>
-        <span class="explore-cta">Open Peer Cases &rarr;</span>
+    <section class="explore-hub-grid" aria-label="Explore sub-modules">
+      <a href="peer-cases.html" class="explore-hub-card hover-card">
+        <div class="explore-hub-card__icon" aria-hidden="true">&#128196;</div>
+        <h2 class="explore-hub-card__name">Peer Cases</h2>
+        <p class="explore-hub-card__desc">Browse real AI-assisted runs from teammates. Read, comment, upvote, reuse prompts.</p>
+        <span class="explore-hub-card__cta">Open Peer Cases &rarr;</span>
       </a>
-      <a href="ideas-lab.html" class="explore-card">
-        <div class="explore-icon" aria-hidden="true">&#128161;</div>
-        <h2 class="explore-name">Ideas Lab</h2>
-        <p class="explore-desc">Suggest tools you wish existed. Upvote ideas your team should build next.</p>
-        <span class="explore-cta">Open Ideas Lab &rarr;</span>
+      <a href="ideas-lab.html" class="explore-hub-card hover-card">
+        <div class="explore-hub-card__icon" aria-hidden="true">&#128161;</div>
+        <h2 class="explore-hub-card__name">Ideas Lab</h2>
+        <p class="explore-hub-card__desc">Suggest tools you wish existed. Upvote ideas your team should build next.</p>
+        <span class="explore-hub-card__cta">Open Ideas Lab &rarr;</span>
       </a>
-      <a href="skill-lab.html" class="explore-card">
-        <div class="explore-icon" aria-hidden="true">&#127919;</div>
-        <h2 class="explore-name">Skill Lab</h2>
-        <p class="explore-desc">Five-minute practice exercises with no real data and no judgment.</p>
-        <span class="explore-cta">Open Skill Lab &rarr;</span>
+      <a href="skill-lab.html" class="explore-hub-card hover-card">
+        <div class="explore-hub-card__icon" aria-hidden="true">&#127919;</div>
+        <h2 class="explore-hub-card__name">Skill Lab</h2>
+        <p class="explore-hub-card__desc">Five-minute practice exercises with training data and no judgment.</p>
+        <span class="explore-hub-card__cta">Open Skill Lab &rarr;</span>
       </a>
-      <a href="learning-partners.html" class="explore-card">
-        <div class="explore-icon" aria-hidden="true">&#128101;</div>
-        <h2 class="explore-name">Learning Partners</h2>
-        <p class="explore-desc">Find PODs around topics you are curious about. Join or observe.</p>
-        <span class="explore-cta">Open Learning Partners &rarr;</span>
+      <a href="learning-partners.html" class="explore-hub-card hover-card">
+        <div class="explore-hub-card__icon" aria-hidden="true">&#128101;</div>
+        <h2 class="explore-hub-card__name">Learning Partners</h2>
+        <p class="explore-hub-card__desc">Find PODs around topics you are curious about. Join or observe.</p>
+        <span class="explore-hub-card__cta">Open Learning Partners &rarr;</span>
       </a>
     </section>
   </main>

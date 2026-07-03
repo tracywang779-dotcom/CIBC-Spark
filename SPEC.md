@@ -348,12 +348,23 @@ Per-page, in this priority order (matches demo importance):
 
 > **Cursor: when you complete an item, update this section by checking the box. When a new chat opens, this is the first thing to scan to know where the project is.**
 
-> **Status (2026-07-01):** **全部内容与功能已完成，当前进入 UI Polish 阶段。** All surfaces are built, wired, and demo-verified. Active work is visual refinement only (UI v2 rollout, per-page polish, consistency pass). Do not change feature logic, data schemas, or cross-surface links without owner approval.
+> **Status (2026-07-02):** **Round 2 大改造完成。** Landing is now a home dashboard; Profile content merged into `index.html`; Pledge lives in Trust Center; Workflows hub + detail merged on `workflows.html?id=xxx`; Skill Lab records completion flags + journey points in `spark_runtime`.
+
+### Round 2 — Dashboard & IA refactor
+
+- [x] Block 0: Remove Landing v2 sandbox (`landing-v2.css`, `index-classic.html`, `index-v2.html`)
+- [x] Block 1: Landing dashboard (`css/landing.css`) — progression, AI chat placeholder, Skill Lab preview, wins, calendar, 3 module cards, full nav + avatar logout dropdown
+- [x] Block 2+3: Pledge migrated to Trust Center; Director contact / endorsement / my questions removed
+- [x] Block 4: `spark_runtime.journeyPoints` + `skillLabCompleted[]`; `skillLabExercises[]` in data
+- [x] Block 5: Skill Lab gamification (complete mock + stats sidebar)
+- [x] Block 6: Explore subtitle; 4 PODs + Create POD placeholder
+- [x] Block 7: Workflows merged page; `workflow-detail.html` redirect stub; share case +3 journey points
+- [x] Block 8: README + SPEC handoff updated
 
 ### Module completion *(content + functionality)*
 
 - [x] Login
-- [x] Landing (`index.html` — UI v2 sphere layout; classic archived at `index-classic.html`)
+- [x] Landing (`index.html` — Round 2 dashboard layout; `css/landing.css`)
 - [x] Pledge
 - [x] Pledge Edit
 - [x] Workflows hub
@@ -445,6 +456,8 @@ Visual refinement only. See **UI Redesign Sandbox Setup** and **Handoff Notes fo
 
 ### Known Issues / Open Questions
 *(Cursor: add notes here whenever you encounter something ambiguous or skipped.)*
+
+- **Round 2 (2026-07-02):** Landing is dashboard (`index.html` + `css/landing.css`). Profile content merged; logout via nav avatar dropdown. Pledge in Trust Center (`#pledge`). Workflows hub+detail merged on `workflows.html?id=`. Skill Lab stores completion IDs + points only (owner-approved override of DESIGN_LOGIC §4.4.5). Director UI removed from Trust Center. `profile.html`, `pledge.html`, `workflow-detail.html` are redirect stubs.
 
 - **File count:** Section 4 lists 15 HTML files; Section 9 calls it "14". Resolved by building all 15 (the 14 nav pages + `login.html`). No conflict in practice.
 - **`assets/logo.svg`:** Created — red four-point spark; used in nav (`renderSparkLogo`), Landing brand bar, and login card.

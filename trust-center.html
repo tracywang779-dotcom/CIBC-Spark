@@ -9,30 +9,75 @@
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/ui-v2.css" />
   <style>
-    .tc-page { padding: var(--space-10) 0 var(--space-12) 0; }
-    .tc-title { font-size: 42px; font-weight: 600; line-height: 1.25; margin: 0 0 var(--space-2) 0; }
-    .tc-lead { font-size: 24px; line-height: 1.5; color: var(--gray-500); margin: 0 0 var(--space-8) 0; max-width: 65ch; }
+    .tc-page { padding: var(--space-8) 0 var(--space-10); }
+    .tc-title { font-size: var(--text-h1); font-weight: 600; line-height: 1.25; margin: 0 0 var(--space-2); }
+    .tc-lead { font-size: var(--text-body-lg); line-height: 1.5; color: var(--gray-500); margin: 0 0 var(--module-gap); max-width: 65ch; }
 
-    /* DESIGN_SYSTEM 4.3 — Ask 1.5fr / Look-up 1fr */
     .tc-split {
       display: grid;
-      grid-template-columns: 1.5fr 1fr;
-      gap: var(--space-8);
-      align-items: start;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--module-gap);
+      align-items: stretch;
+      margin-bottom: var(--module-gap);
     }
-    .tc-col-title { font-size: 36px; font-weight: 600; margin: 0 0 var(--space-4) 0; }
-    .tc-section { margin-bottom: var(--space-6); }
+    .tc-col-title { font-size: var(--text-h3); font-weight: 600; margin: 0 0 var(--space-4); color: var(--gray-900); }
 
     .panel {
       background: var(--white);
       border: 1px solid var(--gray-200);
       border-radius: var(--radius-card);
-      padding: var(--space-5);
+      padding: var(--panel-pad);
       box-shadow: var(--shadow-card);
+      height: 100%;
     }
-    .panel-title { font-size: 30px; font-weight: 600; margin: 0 0 var(--space-4) 0; }
+    .panel-title { font-size: var(--text-h3); font-weight: 600; margin: 0 0 var(--space-4); }
 
-    /* Chatbot */
+    .pledge-section { margin-bottom: var(--module-gap); }
+    .pledge-section-title { font-size: var(--text-h2); font-weight: 600; margin: 0 0 var(--space-4); }
+    .card--accent { border-top: 3px solid var(--cibc-red); }
+    .enterprise-text { font-size: var(--text-body-lg); line-height: 1.5; color: var(--gray-900); margin: var(--space-2) 0 var(--space-4); max-width: 65ch; }
+    .meta { font-size: var(--text-sm); color: var(--gray-500); margin: 0; }
+    .eyebrow { font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--cibc-red); margin: 0; }
+    .dept-tabs { display: flex; gap: var(--space-2); flex-wrap: wrap; margin: var(--space-6) 0 var(--space-4) 0; }
+    .dept-tab {
+      padding: 8px 16px;
+      border: 1px solid var(--gray-200);
+      border-radius: 999px;
+      background: var(--white);
+      color: var(--gray-700);
+      font-size: 16px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      transition: var(--transition-base);
+    }
+    .dept-tab.active { background: var(--cibc-red); border-color: var(--cibc-red); color: var(--white); }
+    .dept-tab:hover:not(.active) { border-color: var(--gray-400); background: var(--gray-50); }
+    .pledge-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); }
+    .manager-name { font-size: var(--text-h3); font-weight: 600; color: var(--gray-900); margin: 0; }
+    .manager-title { font-size: var(--text-sm); color: var(--gray-500); margin: var(--space-1) 0 0; }
+    .pledge-statement { font-size: var(--text-body-lg); line-height: 1.55; color: var(--gray-900); margin: var(--space-4) 0; max-width: 65ch; }
+    .task-group { margin-top: var(--space-5); }
+    .task-group h3 { font-size: 16px; font-weight: 600; color: var(--gray-700); margin: 0 0 var(--space-2) 0; }
+    .task-list { display: flex; flex-wrap: wrap; gap: var(--space-2); list-style: none; padding: 0; margin: 0; }
+    .task-pill { display: inline-block; padding: 4px 10px; background: var(--gray-100); color: var(--gray-700); border-radius: 6px; font-size: 15px; font-weight: 500; }
+    .pledge-actions { display: flex; gap: var(--space-2); flex-shrink: 0; flex-wrap: wrap; }
+    .btn-primary-sm, .btn-secondary-sm {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: var(--radius-button);
+      font-weight: 500;
+      font-size: 16px;
+      font-family: inherit;
+      text-decoration: none;
+      cursor: pointer;
+      transition: var(--transition-base);
+    }
+    .btn-primary-sm { background: var(--cibc-red); color: var(--white); border: 1px solid var(--cibc-red); }
+    .btn-primary-sm:hover { background: var(--cibc-red-dark); }
+    .btn-secondary-sm { background: var(--white); color: var(--gray-900); border: 1px solid var(--gray-200); }
+    .btn-secondary-sm:hover { background: var(--gray-50); border-color: var(--gray-400); }
+
     .chat-log {
       min-height: 220px;
       max-height: 320px;
@@ -46,7 +91,7 @@
       flex-direction: column;
       gap: var(--space-3);
     }
-    .chat-msg { max-width: 92%; font-size: 16px; line-height: 1.55; padding: 10px 14px; border-radius: 12px; }
+    .chat-msg { max-width: 92%; font-size: var(--text-sm); line-height: 1.55; padding: 10px 14px; border-radius: 12px; }
     .chat-msg--bot { background: var(--white); border: 1px solid var(--gray-200); color: var(--gray-900); align-self: flex-start; }
     .chat-msg--user { background: var(--cibc-red-light); color: var(--gray-900); align-self: flex-end; }
     .chat-msg--fallback { border-color: #FCD34D; background: var(--warning-bg); }
@@ -73,8 +118,7 @@
       transition: var(--transition-base);
     }
     .chat-chip:hover { border-color: var(--cibc-red); color: var(--cibc-red); }
-
-    .btn-primary, .btn-secondary, .btn-text {
+    .btn-primary {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -84,50 +128,12 @@
       font-weight: 500;
       font-family: inherit;
       cursor: pointer;
-      transition: var(--transition-base);
       border: none;
-      text-decoration: none;
+      background: var(--cibc-red);
+      color: var(--white);
     }
-    .btn-primary { background: var(--cibc-red); color: var(--white); }
     .btn-primary:hover { background: var(--cibc-red-dark); }
-    .btn-secondary { background: var(--white); color: var(--gray-900); border: 1px solid var(--gray-200); }
-    .btn-secondary:hover { background: var(--gray-50); border-color: var(--gray-400); }
-    .btn-text { background: none; color: var(--cibc-red); padding-left: 0; padding-right: 0; }
-    .btn-text:hover { text-decoration: underline; }
 
-    .field-label { display: block; font-size: 16px; font-weight: 600; color: var(--gray-700); margin-bottom: var(--space-2); }
-    .text-input, .textarea, .select-input {
-      width: 100%;
-      box-sizing: border-box;
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-button);
-      padding: 10px 14px;
-      font-size: 18px;
-      font-family: inherit;
-      margin-bottom: var(--space-4);
-      background: var(--white);
-    }
-    .textarea { min-height: 88px; resize: vertical; }
-    .text-input:focus, .textarea:focus, .select-input:focus {
-      outline: none;
-      border-color: var(--cibc-red);
-      box-shadow: 0 0 0 2px var(--cibc-red-light);
-    }
-    .checkbox-row { display: flex; align-items: flex-start; gap: var(--space-2); font-size: 16px; color: var(--gray-700); margin-bottom: var(--space-4); }
-    .checkbox-row input { margin-top: 3px; accent-color: var(--cibc-red); }
-
-    .success-banner { margin-bottom: var(--space-4); }
-
-    .question-item {
-      border-top: 1px solid var(--gray-200);
-      padding-top: var(--space-4);
-      margin-top: var(--space-4);
-    }
-    .question-item:first-child { border-top: none; padding-top: 0; margin-top: 0; }
-    .question-item h4 { font-size: 18px; font-weight: 600; margin: 0 0 var(--space-1) 0; }
-    .question-meta { font-size: 15px; color: var(--gray-500); margin: 0 0 var(--space-2) 0; }
-
-    /* Boundaries */
     .tab-row { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); flex-wrap: wrap; }
     .tab-btn {
       padding: 8px 16px;
@@ -162,21 +168,13 @@
       line-height: 1.5;
     }
     .boundaries-table tr.row-disabled td { color: var(--gray-400); }
-    .status-pill {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 15px;
-      font-weight: 500;
-      white-space: nowrap;
-    }
+    .status-pill { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 15px; font-weight: 500; white-space: nowrap; }
     .status-pill--yes { background: var(--success-bg); color: var(--success); }
     .status-pill--check { background: var(--warning-bg); color: #92400E; }
     .status-pill--no { background: var(--gray-100); color: var(--gray-500); }
     .wf-link { color: var(--cibc-red); font-weight: 500; text-decoration: none; font-size: 16px; }
     .wf-link:hover { text-decoration: underline; }
 
-    /* FAQ accordion */
     .faq-item { border-bottom: 1px solid var(--gray-200); }
     .faq-item:last-child { border-bottom: none; }
     .faq-trigger {
@@ -188,7 +186,7 @@
       padding: var(--space-4) 0;
       background: none;
       border: none;
-      font-size: 18px;
+      font-size: var(--text-body);
       font-weight: 500;
       color: var(--gray-900);
       text-align: left;
@@ -196,60 +194,54 @@
       cursor: pointer;
     }
     .faq-trigger:hover { color: var(--cibc-red); }
-    .faq-answer { display: none; font-size: 16px; line-height: 1.55; color: var(--gray-500); padding: 0 0 var(--space-4) 0; margin: 0; }
+    .faq-answer { display: none; font-size: var(--text-sm); line-height: 1.55; color: var(--gray-500); padding: 0 0 var(--space-4) 0; margin: 0; }
     .faq-item.open .faq-answer { display: block; }
     .faq-item.open .faq-chevron { transform: rotate(180deg); }
     .faq-chevron { transition: transform 0.15s ease; color: var(--gray-400); }
 
-    /* Director */
-    .endorsement {
-      background: var(--gray-50);
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-button);
-      padding: var(--space-4);
-      margin-bottom: var(--space-5);
-    }
-    .endorsement-text { font-size: 18px; line-height: 1.55; color: var(--gray-900); margin: 0 0 var(--space-3) 0; font-style: italic; }
-    .endorsement-sig { font-size: 16px; font-weight: 600; color: var(--gray-900); margin: 0; }
-    .endorsement-meta { font-size: 16px; color: var(--gray-500); margin: var(--space-1) 0 0 0; }
-
-    .ruling-card {
-      border: 1px solid var(--gray-200);
-      border-radius: var(--radius-button);
-      margin-bottom: var(--space-3);
-      overflow: hidden;
-    }
-    .ruling-trigger {
-      width: 100%;
-      text-align: left;
-      background: var(--white);
-      border: none;
-      padding: var(--space-4);
-      cursor: pointer;
-      font-family: inherit;
-      transition: var(--transition-base);
-    }
-    .ruling-trigger:hover { background: var(--gray-50); }
-    .ruling-q { font-size: 18px; font-weight: 600; color: var(--gray-900); margin: 0 0 var(--space-1) 0; }
-    .ruling-meta { font-size: 15px; color: var(--gray-500); margin: 0; }
-    .ruling-body {
-      display: none;
-      padding: 0 var(--space-4) var(--space-4);
-      border-top: 1px solid var(--gray-200);
-      background: var(--gray-50);
-    }
-    .ruling-card.open .ruling-body { display: block; }
-    .ruling-body p { font-size: 16px; line-height: 1.55; color: var(--gray-700); margin: var(--space-3) 0 0 0; }
-
     .doc-list { list-style: none; padding: 0; margin: 0; }
     .doc-list li { padding: var(--space-3) 0; border-bottom: 1px solid var(--gray-100); }
     .doc-list li:last-child { border-bottom: none; }
-    .doc-list a { color: var(--cibc-red); font-weight: 500; text-decoration: none; font-size: 16px; }
-    .doc-list a:hover { text-decoration: underline; }
     .doc-desc { display: block; font-size: 16px; color: var(--gray-500); margin-top: 4px; font-weight: 400; }
 
+    .tc-bottom-grid {
+      align-items: start;
+      gap: var(--module-gap);
+    }
+    .tc-bottom-grid .module-panel {
+      padding: var(--space-4);
+      height: auto;
+    }
+    .tc-bottom-grid .module-panel__title {
+      font-size: var(--text-h3);
+      margin-bottom: var(--space-2);
+    }
+    .tc-bottom-grid .faq-trigger {
+      padding: var(--space-2) 0;
+      font-size: var(--text-sm);
+      line-height: 1.4;
+    }
+    .tc-bottom-grid .faq-answer {
+      padding: 0 0 var(--space-2);
+      font-size: var(--text-xs);
+      line-height: 1.45;
+    }
+    .tc-bottom-grid .doc-list li {
+      padding: var(--space-2) 0;
+    }
+    .tc-bottom-grid .doc-list a {
+      font-size: var(--text-sm);
+      line-height: 1.35;
+    }
+    .tc-bottom-grid .doc-desc {
+      font-size: var(--text-xs);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
     @media (max-width: 960px) {
-      .tc-split { grid-template-columns: 1fr; }
+      .tc-split,
+      .module-grid-2 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -257,15 +249,32 @@
   <div id="nav"></div>
 
   <main class="spark-container tc-page">
+    <div class="success-banner panel-hidden" id="pledge-banner" role="status">
+      <span aria-hidden="true">&#10003;</span>
+      <span class="success-banner__text">Your pledge has been updated.</span>
+    </div>
+
     <h1 class="tc-title">Trust Center</h1>
-    <p class="tc-lead">Check the rules, ask the chatbot, see the Director&apos;s guidance.</p>
+    <p class="tc-lead">Check pledges and boundaries, ask the policy chatbot, and find document resources.</p>
+
+    <section class="pledge-section" id="pledge" aria-labelledby="pledge-heading">
+      <h2 class="pledge-section-title" id="pledge-heading">Pledge</h2>
+
+      <div class="panel card--accent" aria-labelledby="enterprise-label">
+        <p class="eyebrow" id="enterprise-label">CIBC Enterprise Pledge</p>
+        <p class="enterprise-text" id="enterprise-text">&hellip;</p>
+        <p class="meta" id="enterprise-meta"></p>
+      </div>
+
+      <h3 class="panel-title" style="margin-top: var(--space-8);">Department pledges</h3>
+      <div class="dept-tabs" id="dept-tabs" role="tablist"></div>
+      <div class="panel" id="dept-panel" role="tabpanel"></div>
+    </section>
 
     <div class="tc-split">
-      <!-- Ask column (DESIGN_LOGIC 4.5.2) -->
       <div class="tc-ask">
         <h2 class="tc-col-title">Ask</h2>
-
-        <section class="panel tc-section" aria-labelledby="chatbot-heading">
+        <section class="panel" aria-labelledby="chatbot-heading">
           <h3 class="panel-title" id="chatbot-heading">Policy chatbot</h3>
           <div class="chat-log" id="chat-log" role="log" aria-live="polite">
             <div class="chat-msg chat-msg--bot">Ask a question about what is and isn&apos;t sanctioned. I answer policy questions, not work drafting.</div>
@@ -276,44 +285,11 @@
           </div>
           <div class="chat-suggestions" id="chat-suggestions"></div>
         </section>
-
-        <section class="panel tc-section" id="director" aria-labelledby="director-form-heading">
-          <h3 class="panel-title" id="director-form-heading">Contact the Director</h3>
-          <p style="font-size: 16px;color:var(--gray-500);margin:0 0 var(--space-4) 0;">When the chatbot can&apos;t answer with confidence, ask the Director instead.</p>
-          <div class="success-banner panel-hidden" id="director-success" role="status">
-            <span aria-hidden="true">&#10003;</span>
-            <span class="success-banner__text">Your question has been submitted. The Director will respond when reviewed.</span>
-          </div>
-          <form id="director-form">
-            <label class="field-label" for="q-title">Question title</label>
-            <input class="text-input" id="q-title" type="text" required />
-            <label class="field-label" for="q-desc">Description</label>
-            <textarea class="textarea" id="q-desc" required></textarea>
-            <label class="field-label" for="q-category">Related task category</label>
-            <select class="select-input" id="q-category">
-              <option value="Reconciliation">Reconciliation</option>
-              <option value="Email-Approval">Email-Approval</option>
-              <option value="Other">Other</option>
-            </select>
-            <label class="checkbox-row">
-              <input type="checkbox" id="q-publish" />
-              <span>It&apos;s OK to publish this question and its answer to the Director&apos;s rulings library.</span>
-            </label>
-            <button type="submit" class="btn-primary">Submit question</button>
-          </form>
-        </section>
-
-        <section class="panel tc-section" aria-labelledby="my-questions-heading">
-          <h3 class="panel-title" id="my-questions-heading">My questions</h3>
-          <div id="my-questions"></div>
-        </section>
       </div>
 
-      <!-- Look up column -->
       <div class="tc-lookup">
         <h2 class="tc-col-title">Look up</h2>
-
-        <section class="panel tc-section" id="boundaries" aria-labelledby="boundaries-heading">
+        <section class="panel" id="boundaries" aria-labelledby="boundaries-heading">
           <h3 class="panel-title" id="boundaries-heading">Boundaries</h3>
           <div class="tab-row" role="tablist">
             <button type="button" class="tab-btn active" data-family="reconciliation">Reconciliation</button>
@@ -333,23 +309,19 @@
             </table>
           </div>
         </section>
-
-        <section class="panel tc-section" aria-labelledby="faq-heading">
-          <h3 class="panel-title" id="faq-heading">FAQ</h3>
-          <div id="faq-list"></div>
-        </section>
-
-        <section class="panel tc-section" aria-labelledby="director-lib-heading">
-          <h3 class="panel-title" id="director-lib-heading">Director endorsement &amp; rulings</h3>
-          <div class="endorsement" id="endorsement"></div>
-          <div id="rulings-list"></div>
-        </section>
-
-        <section class="panel tc-section" aria-labelledby="docs-heading">
-          <h3 class="panel-title" id="docs-heading">Document resources</h3>
-          <ul class="doc-list" id="doc-list"></ul>
-        </section>
       </div>
+    </div>
+
+    <div class="module-grid-2 tc-bottom-grid">
+      <section class="module-panel" aria-labelledby="faq-heading">
+        <h3 class="module-panel__title" id="faq-heading">FAQ</h3>
+        <div id="faq-list"></div>
+      </section>
+
+      <section class="module-panel" aria-labelledby="docs-heading">
+        <h3 class="module-panel__title" id="docs-heading">Document resources</h3>
+        <ul class="doc-list" id="doc-list"></ul>
+      </section>
     </div>
   </main>
 
@@ -364,6 +336,97 @@
     if (user) {
       mountChrome('trust-center');
       const data = getMergedData();
+      const DEPARTMENTS = ['Operational', 'Risk', 'Finance', 'Technology'];
+      let selectedDept = DEPARTMENTS.includes(user.department) ? user.department : 'Operational';
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('updated') === '1') {
+        showSuccessBanner('Your pledge has been updated.', {
+          targetId: 'pledge-banner',
+          hideClass: 'panel-hidden'
+        });
+      }
+
+      const enterprise = data.pledges.enterprise;
+      document.getElementById('enterprise-text').textContent = enterprise.text;
+      document.getElementById('enterprise-meta').textContent = `Last updated ${formatDisplayDate(enterprise.lastUpdated)}`;
+
+      const tabsEl = document.getElementById('dept-tabs');
+      DEPARTMENTS.forEach((dept) => {
+        const tab = document.createElement('button');
+        tab.className = 'dept-tab';
+        tab.textContent = dept;
+        tab.setAttribute('role', 'tab');
+        tab.dataset.dept = dept;
+        tab.addEventListener('click', () => {
+          selectedDept = dept;
+          renderTabs();
+          renderDeptPanel();
+        });
+        tabsEl.appendChild(tab);
+      });
+
+      function renderTabs() {
+        Array.from(tabsEl.children).forEach((tab) => {
+          const isActive = tab.dataset.dept === selectedDept;
+          tab.classList.toggle('active', isActive);
+          tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+
+      function renderDeptPanel() {
+        const panel = document.getElementById('dept-panel');
+        const pledge = getMergedData().pledges.departments[selectedDept];
+
+        if (!pledge) {
+          panel.innerHTML = renderEmptyState(
+            'Your department\u2019s manager has not published a pledge yet.',
+            { icon: '&#128221;' }
+          );
+          return;
+        }
+
+        const canEdit = user.role === 'manager' && selectedDept === user.department;
+        const editButton = canEdit
+          ? `<div class="pledge-actions">
+               <a class="btn-primary-sm" href="pledge-edit.html">Edit this pledge</a>
+               <a class="btn-secondary-sm" href="pledge-edit.html?mode=new">Write a new pledge</a>
+             </div>`
+          : '';
+
+        const encouraged = (pledge.encouragedTasks || [])
+          .map((t) => `<li class="task-pill">${escapeHtml(t)}</li>`).join('');
+        const checkFirst = (pledge.checkFirstTasks || [])
+          .map((t) => `<li class="task-pill">${escapeHtml(t)}</li>`).join('');
+
+        panel.innerHTML = `
+          <div class="pledge-head">
+            <div>
+              <p class="manager-name">${escapeHtml(pledge.manager)}</p>
+              <p class="manager-title">${escapeHtml(pledge.managerTitle)}</p>
+            </div>
+            ${editButton}
+          </div>
+          <p class="pledge-statement">${escapeHtml(pledge.text)}</p>
+          <div class="task-group">
+            <h3>Tasks I encourage my team to try AI on</h3>
+            <ul class="task-list">${encouraged || '<li class="meta">None listed.</li>'}</ul>
+          </div>
+          <div class="task-group">
+            <h3>Tasks I want my team to check with me first</h3>
+            <ul class="task-list">${checkFirst || '<li class="meta">None listed.</li>'}</ul>
+          </div>
+          <p class="meta" style="margin-top: var(--space-5);">Last updated ${formatDisplayDate(pledge.lastUpdated)}</p>`;
+      }
+
+      renderTabs();
+      renderDeptPanel();
 
       const chatLog = document.getElementById('chat-log');
       const chatInput = document.getElementById('chat-input');
@@ -378,9 +441,8 @@
 
       const findChatbotAnswer = (input) => {
         const normalized = input.trim().toLowerCase();
-        const match = data.chatbotDemo.find((item) => normalized === item.question.toLowerCase()
-          || normalized.includes(item.question.toLowerCase().slice(0, 24)));
-        return match ? match.answer : null;
+        return data.chatbotDemo.find((item) => normalized === item.question.toLowerCase()
+          || normalized.includes(item.question.toLowerCase().slice(0, 24)))?.answer || null;
       };
 
       const sendChat = () => {
@@ -395,20 +457,7 @@
           return;
         }
 
-        const fallback = document.createElement('div');
-        fallback.className = 'chat-msg chat-msg--bot chat-msg--fallback';
-        fallback.textContent = "I'm not sure about that. Would you like to ask the Director? ";
-        const link = document.createElement('button');
-        link.type = 'button';
-        link.className = 'btn-text';
-        link.textContent = 'Ask the Director instead';
-        link.addEventListener('click', () => {
-          document.getElementById('director').scrollIntoView({ behavior: 'smooth' });
-          document.getElementById('q-title').focus();
-        });
-        fallback.appendChild(link);
-        chatLog.appendChild(fallback);
-        chatLog.scrollTop = chatLog.scrollHeight;
+        appendChat('I\'m not sure about that. Check the Boundaries table or your department pledge for guidance.', 'bot');
       };
 
       document.getElementById('chat-suggestions').innerHTML = data.chatbotDemo.map((item) => `
@@ -427,40 +476,6 @@
         if (event.key === 'Enter') sendChat();
       });
 
-      const renderMyQuestions = () => {
-        const questions = getDirectorQuestions();
-        const container = document.getElementById('my-questions');
-        if (!questions.length) {
-          container.innerHTML = renderEmptyState('You haven\u2019t asked the Director anything yet.', { icon: '&#128172;' });
-          return;
-        }
-        container.innerHTML = questions.slice().reverse().map((q) => `
-          <article class="question-item">
-            <h4>${q.title}</h4>
-            <p class="question-meta">${q.category} · ${q.status === 'pending' ? 'Pending' : 'Answered'} · ${formatDisplayDate(q.createdAt)}</p>
-            <p style="font-size: 16px;color:var(--gray-700);margin:0;">${q.description}</p>
-          </article>
-        `).join('');
-      };
-
-      document.getElementById('director-form').addEventListener('submit', (event) => {
-        event.preventDefault();
-        submitDirectorQuestion({
-          title: document.getElementById('q-title').value.trim(),
-          description: document.getElementById('q-desc').value.trim(),
-          category: document.getElementById('q-category').value,
-          publishOk: document.getElementById('q-publish').checked
-        });
-        document.getElementById('director-form').reset();
-        showSuccessBanner('Your question has been submitted. The Director will respond when reviewed.', {
-          targetId: 'director-success',
-          hideClass: 'panel-hidden'
-        });
-        renderMyQuestions();
-      });
-
-      renderMyQuestions();
-
       const statusLabel = (status) => {
         if (status === 'encouraged') return '<span class="status-pill status-pill--yes">&#10003; Yes</span>';
         if (status === 'check-first') return '<span class="status-pill status-pill--check">&#9888; Check first</span>';
@@ -472,7 +487,7 @@
         const rows = data.boundaries.filter((row) => row.family === activeFamily);
         document.getElementById('boundaries-body').innerHTML = rows.map((row) => {
           const wfLink = row.workflowId
-            ? `<a class="wf-link" href="workflow-detail.html?id=${row.workflowId}">Open workflow</a>`
+            ? `<a class="wf-link" href="workflows.html?id=${row.workflowId}">Open workflow</a>`
             : '';
           return `
             <tr class="${row.status === 'not-allowed' ? 'row-disabled' : ''}">
@@ -512,35 +527,6 @@
         trigger.setAttribute('aria-expanded', isOpen);
       });
 
-      const endorsement = data.directorEndorsement;
-      document.getElementById('endorsement').innerHTML = `
-        <p class="endorsement-text">&ldquo;${endorsement.text}&rdquo;</p>
-        <p class="endorsement-sig">${endorsement.name}</p>
-        <p class="endorsement-meta">${endorsement.title} · Last updated ${formatDisplayDate(endorsement.lastUpdated)}</p>
-      `;
-
-      document.getElementById('rulings-list').innerHTML = data.rulings.length
-        ? data.rulings.map((ruling) => `
-            <article class="ruling-card">
-              <button type="button" class="ruling-trigger" aria-expanded="false">
-                <p class="ruling-q">${ruling.question}</p>
-                <p class="ruling-meta">Anonymous asker · ${ruling.decidedBy} · ${formatDisplayDate(ruling.decidedAt)}</p>
-              </button>
-              <div class="ruling-body">
-                <p><strong>Ruling:</strong> ${ruling.ruling}</p>
-              </div>
-            </article>
-          `).join('')
-        : renderEmptyState('No rulings have been published yet.', { icon: '&#128220;' });
-
-      document.getElementById('rulings-list').addEventListener('click', (event) => {
-        const trigger = event.target.closest('.ruling-trigger');
-        if (!trigger) return;
-        const card = trigger.closest('.ruling-card');
-        const isOpen = card.classList.toggle('open');
-        trigger.setAttribute('aria-expanded', isOpen);
-      });
-
       document.getElementById('doc-list').innerHTML = data.documentResources.map((doc) => `
         <li>
           <span style="color:var(--gray-900);font-weight:500;font-size: 16px;">${doc.title}</span>
@@ -548,8 +534,8 @@
         </li>
       `).join('');
 
-      if (window.location.hash === '#director') {
-        document.getElementById('director').scrollIntoView({ behavior: 'smooth' });
+      if (window.location.hash === '#pledge') {
+        document.getElementById('pledge').scrollIntoView({ behavior: 'smooth' });
       }
       if (window.location.hash === '#boundaries') {
         document.getElementById('boundaries').scrollIntoView({ behavior: 'smooth' });

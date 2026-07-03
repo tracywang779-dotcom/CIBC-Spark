@@ -9,24 +9,24 @@
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="css/ui-v2.css" />
   <style>
-    .page { padding: var(--space-10) 0 var(--space-12) 0; }
-    .page-title { font-size: 42px; font-weight: 600; line-height: 1.25; margin: 0 0 var(--space-2) 0; }
-    .page-lead { font-size: 24px; color: var(--gray-500); margin: 0 0 var(--space-6) 0; max-width: 65ch; }
+    .page { padding: var(--space-8) 0 var(--space-10); }
+    .page-title { font-size: var(--text-h1); font-weight: 600; line-height: 1.25; margin: 0 0 var(--space-2) 0; }
+    .page-lead { font-size: var(--text-body-lg); color: var(--gray-500); margin: 0 0 var(--module-gap) 0; max-width: 65ch; }
 
     .card {
       background: var(--white);
       border: 1px solid var(--gray-200);
       border-radius: var(--radius-card);
-      padding: var(--space-6);
+      padding: var(--panel-pad);
       box-shadow: var(--shadow-card);
-      margin-bottom: var(--space-5);
+      margin-bottom: var(--module-gap);
     }
-    .card-title { font-size: 30px; font-weight: 600; margin: 0 0 var(--space-4) 0; }
+    .card-title { font-size: var(--text-h3); font-weight: 600; margin: 0 0 var(--space-4) 0; }
 
     .readonly-grid { display: grid; gap: var(--space-4); }
     .readonly-item label {
       display: block;
-      font-size: 15px;
+      font-size: var(--text-xs);
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.03em;
@@ -34,21 +34,21 @@
       margin-bottom: var(--space-1);
     }
     .readonly-item .value {
-      font-size: 18px;
+      font-size: var(--text-body);
       color: var(--gray-900);
       line-height: 1.55;
       white-space: pre-wrap;
     }
-    .readonly-item ul { margin: 0; padding-left: 1.2rem; font-size: 18px; color: var(--gray-900); }
+    .readonly-item ul { margin: 0; padding-left: 1.2rem; font-size: var(--text-body); color: var(--gray-900); }
 
-    .field-label { display: block; font-size: 16px; font-weight: 600; color: var(--gray-700); margin-bottom: var(--space-2); }
+    .field-label { display: block; font-size: var(--text-sm); font-weight: 600; color: var(--gray-700); margin-bottom: var(--space-2); }
     .text-input {
       width: 100%;
       box-sizing: border-box;
       border: 1px solid var(--gray-200);
       border-radius: var(--radius-button);
       padding: 10px 14px;
-      font-size: 18px;
+      font-size: var(--text-body);
       font-family: inherit;
       background: var(--white);
     }
@@ -66,7 +66,7 @@
       padding: 10px 20px;
       border-radius: var(--radius-button);
       font-weight: 500;
-      font-size: 18px;
+      font-size: var(--text-sm);
       font-family: inherit;
       cursor: pointer;
       transition: var(--transition-base);
@@ -86,8 +86,8 @@
       text-align: center;
       padding: var(--space-8) var(--space-6);
     }
-    .confirmation h2 { font-size: 36px; font-weight: 600; margin: 0 0 var(--space-3) 0; }
-    .confirmation p { font-size: 24px; color: var(--gray-500); margin: 0 0 var(--space-6) 0; }
+    .confirmation h2 { font-size: var(--text-h2); font-weight: 600; margin: 0 0 var(--space-3) 0; }
+    .confirmation p { font-size: var(--text-body-lg); color: var(--gray-500); margin: 0 0 var(--module-gap) 0; }
     .confirmation .btn-row { justify-content: center; }
 
     .empty-state { text-align: center; padding: var(--space-8); color: var(--gray-500); }
@@ -183,7 +183,7 @@
             </div>
             <div class="btn-row">
               <button type="button" class="btn-primary" id="btn-submit">Submit</button>
-              <a class="btn-secondary" href="workflow-detail.html?id=${run.workflowId}">Back to workflow</a>
+              <a class="btn-secondary" href="workflows.html?id=${run.workflowId}">Back to workflow</a>
             </div>
           </section>
         `;
@@ -221,6 +221,7 @@
           };
 
           appendPeerCase(newCase);
+          addJourneyPoints(3);
           clearWorkflowRun();
 
           content.innerHTML = `

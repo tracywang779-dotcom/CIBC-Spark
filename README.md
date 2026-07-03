@@ -15,8 +15,6 @@ python3 -m http.server 8765
 
 Open [http://localhost:8765/login.html](http://localhost:8765/login.html)
 
-**Classic Landing (pre–UI v2):** [index-classic.html](http://localhost:8765/index-classic.html)
-
 ## Demo login
 
 | Email | Role |
@@ -28,11 +26,11 @@ Password field is decorative — any non-empty value works.
 
 ## Demo path (≈6 min)
 
-1. **Login** as Sarah → **Landing** → **Pledge** (enterprise + department)
-2. **Workflows** → run a task → verify output → **Submit as a case**
+1. **Login** as Sarah → **Home dashboard** (progression, Skill Lab preview, wins, calendar)
+2. **Workflows** → run a task → verify output → **Submit as a case** (+ journey points)
 3. **Explore** → Peer Cases → case detail (upvote, comment)
-4. **Trust Center** → chatbot or Boundaries
-5. **Profile** (avatar) → progression, wins, calendar → **Log out**
+4. **Trust Center** → pledges, chatbot, or Boundaries
+5. **Nav avatar menu** → **Log out**
 
 Log in as David to see manager-only pledge edit and manager-badged comments.
 

@@ -51,11 +51,11 @@
 }
 
 .wf-hub-section__title {
-  font-size: 28px;
+  font-size: var(--text-h2);
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--gray-900);
-  margin: 0 0 var(--space-5);
+  margin: 0 0 var(--module-gap);
 }
 
 /* Role cards */
@@ -310,8 +310,199 @@
   text-decoration: underline;
 }
 
+/* Merged hub — Guided Workflows layout */
+.wf-hub-title {
+  font-size: var(--text-h1);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--gray-900);
+  margin: 0 0 var(--module-gap);
+}
+
+.wf-hub-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--module-gap);
+  align-items: start;
+  margin-bottom: var(--module-gap);
+}
+
+.wf-hub-panel {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-card);
+  padding: var(--panel-pad);
+  box-shadow: var(--shadow-card);
+}
+
+.wf-hub-panel__title {
+  font-size: var(--text-h3);
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0 0 var(--space-4);
+}
+
+.wf-hub-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--module-gap);
+}
+
+.wf-family-tabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.wf-family-tab {
+  padding: var(--space-2) var(--space-4);
+  margin-bottom: -1px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--gray-500);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.wf-family-tab:hover {
+  color: var(--gray-900);
+}
+
+.wf-family-tab.active {
+  color: var(--cibc-red);
+  border-bottom-color: var(--cibc-red);
+}
+
+.wf-workflow-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.wf-workflow-list-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--space-4);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-button);
+  background: var(--white);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wf-workflow-list-item:hover {
+  border-color: var(--gray-400);
+}
+
+.wf-workflow-list-item.active {
+  border-color: var(--cibc-red);
+  box-shadow: 0 0 0 1px var(--cibc-red);
+}
+
+.wf-workflow-list-item__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.wf-workflow-list-item__name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0;
+}
+
+.wf-workflow-list-item__summary {
+  font-size: 15px;
+  color: var(--gray-500);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.wf-recent-runs-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.wf-recent-run {
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.wf-recent-run:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.wf-recent-run__name {
+  display: block;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--gray-900);
+  margin-bottom: var(--space-1);
+}
+
+.wf-recent-run__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  font-size: 14px;
+  color: var(--gray-500);
+}
+
+.wf-tip-card {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+}
+
+.wf-tip-card__label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gray-500);
+  margin-bottom: var(--space-2);
+}
+
+.wf-tip-card p {
+  font-size: 15px;
+  color: var(--gray-700);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.wf-in-progress {
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--gray-200);
+}
+
+.wf-in-progress__title {
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--gray-900);
+  margin: 0 0 var(--space-5);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
+  .wf-hub-top {
+    grid-template-columns: 1fr;
+  }
   .wf-workflow-grid {
     grid-template-columns: repeat(2, 1fr);
   }
