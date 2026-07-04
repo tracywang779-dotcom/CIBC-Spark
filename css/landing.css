@@ -75,6 +75,38 @@ body.landing-dashboard {
   opacity: 0.9;
 }
 
+.landing-hero-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.landing-cibc-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.landing-cibc-logo--on-dark {
+  color: var(--white);
+}
+
+.landing-cibc-logo__mark {
+  display: block;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.landing-cibc-logo__text {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--white);
+}
+
 .landing-hero-bar .spark-nav__avatar {
   background: rgba(255, 255, 255, 0.95);
   border-color: rgba(255, 255, 255, 0.55);

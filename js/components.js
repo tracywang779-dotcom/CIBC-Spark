@@ -25,11 +25,23 @@ function renderNavAvatarDropdown() {
   `;
 }
 
+function renderCibcLogoOnDark() {
+  return `
+    <span class="landing-cibc-logo landing-cibc-logo--on-dark" aria-label="CIBC">
+      <img src="assets/cibc-emblem.svg" alt="" width="28" height="28" class="landing-cibc-logo__mark" aria-hidden="true" />
+      <span class="landing-cibc-logo__text">CIBC</span>
+    </span>
+  `;
+}
+
 function renderLandingHeroBar() {
   return `
     <header class="landing-hero-bar">
       ${renderSparkLogo('index.html', 'spark-logo--on-dark')}
-      ${renderNavAvatarDropdown()}
+      <div class="landing-hero-bar__actions">
+        ${renderCibcLogoOnDark()}
+        ${renderNavAvatarDropdown()}
+      </div>
     </header>
   `;
 }
